@@ -1,0 +1,19 @@
+Webots Project File version R2019b
+perspectives: 000000ff00000000fd00000003000000000000000000000000fc0100000001fb0000001a0044006f00630075006d0065006e0074006100740069006f006e0000000000ffffffff0000005400ffffff00000001000001aa00000305fc0200000001fb0000001400540065007800740045006400690074006f00720100000015000003050000010300ffffff0000000300000780000000c5fc0100000001fb0000000e0043006f006e0073006f006c0065010000000000000780000000ad00ffffff000005d00000030500000001000000020000000100000008fc00000000
+simulationViewPerspectives: 000000ff0000000100000002000001df000004150100000006010000000100
+sceneTreePerspectives: 000000ff0000000100000002000000c0000000fc0100000006010000000200
+maximizedDockId: -1
+centralWidgetVisible: 1
+selectionDisabled: 0
+viewpointLocked: 0
+orthographicViewHeight: 1
+textFiles: 0 "controllers/youbot/youbot.c"
+renderingDevicePerspectives: youBot:ForwardHighResBigFov;0;0.9375;0;0
+renderingDevicePerspectives: youBot:ForwardHighResSmallFov;0;0.25;0;0
+renderingDevicePerspectives: youBot:LeftLowRes;0;0.5;0;0
+renderingDevicePerspectives: youBot:BackLowRes;0;0.5;0;0
+renderingDevicePerspectives: youBot:ForwardLowResBigFov;0;0.5;0;0
+renderingDevicePerspectives: youBot:ForwardHighRes;0;0.25;0;0
+renderingDevicePerspectives: youBot:range-finder;0;5.89063;0;0
+renderingDevicePerspectives: youBot:BackHighRes;0;0.25;0;0
+renderingDevicePerspectives: youBot:RightLowRes;0;0.5;0;0

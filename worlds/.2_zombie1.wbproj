@@ -1,0 +1,25 @@
+Webots Project File version R2019b
+perspectives: 000000ff00000000fd00000003000000000000000000000000fc0100000001fb0000001a0044006f00630075006d0065006e0074006100740069006f006e0000000000ffffffff0000005400ffffff00000001000002a60000064dfc0200000001fb0000001400540065007800740045006400690074006f007201000000360000064d000000e400ffffff0000000300000f00000000f7fc0100000001fb0000000e0043006f006e0073006f006c0065010000000000000f000000006200ffffff00000c540000064d00000001000000020000000100000008fc00000000
+simulationViewPerspectives: 000000ff000000010000000200000187000004470100000006010000000100
+sceneTreePerspectives: 000000ff0000000100000002000000c0000000fc0100000006010000000200
+maximizedDockId: -1
+centralWidgetVisible: 1
+selectionDisabled: 0
+viewpointLocked: 0
+orthographicViewHeight: 1
+textFiles: 0 "controllers/youbot/youbot.c"
+globalOptionalRendering: LightPositions
+renderingDevicePerspectives: youBot:range-finder;0;6.23438;0;0
+renderingDevicePerspectives: youBot:ForwardHighResSmallFov;0;0.25;0;0.0469256
+renderingDevicePerspectives: youBot:BackLowRes;0;0.5;0;0.194175
+renderingDevicePerspectives: youBot:ForwardLowResBigFov;0;0.5;0;0.188511
+renderingDevicePerspectives: PR2:wide_stereo_l_stereo_camera_sensor;0;1;0;0
+renderingDevicePerspectives: youBot:ForwardHighResBigFov;1;0.25;0;0.0134118
+renderingDevicePerspectives: youBot:LeftLowRes;0;0.5;0;0.0970874
+renderingDevicePerspectives: youBot:BackHighRes;0;0.25;0;0.0299353
+renderingDevicePerspectives: youBot:ForwardHighRes;0;0.25;0;0.0420713
+renderingDevicePerspectives: PR2:r_forearm_cam_sensor;0;1;0;0
+renderingDevicePerspectives: PR2:l_forearm_cam_sensor;0;1;0;0
+renderingDevicePerspectives: PR2:wide_stereo_r_stereo_camera_sensor;0;1;0;0
+renderingDevicePerspectives: PR2:high_def_sensor;0;0.958333;0;0
+renderingDevicePerspectives: youBot:RightLowRes;0;0.5;0;0.190129
