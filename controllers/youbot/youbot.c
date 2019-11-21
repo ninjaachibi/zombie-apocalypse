@@ -91,26 +91,115 @@ void turn_right()
 		robot_angle = 270;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// CHANGE CODE BELOW HERE ONLY ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// function that counts colored pixels
+void color_seen(const unsigned char *image)
+{
+  int total = 0;
+  int green = 0;
+  int blue = 0;
+  int aqua = 0;
+  int purple = 0;
+
+  int red = 0;
+  int yellow = 0;
+  int orange = 0;
+  int pink = 0;
+
+  int white = 0;
+  int gray = 0;
+  int black = 0;
+
+  for (int x = 0; x < 128; x += 1)
+  {
+    for (int y = 0; y < 64; y += 1)
+    {
+      total++;
+      int r = wb_camera_image_get_red(image, 64, x, y);
+      int g = wb_camera_image_get_green(image, 64, x, y);
+      int b = wb_camera_image_get_blue(image, 64, x, y);
+
+      if ((r > 208) && (g > 208) && (b > 208))
+      {
+        white++;
+      }
+      if (((r > 65) && (r < 75)) && ((g > 70) && (g < 80)) && ((g > 90) && (g < 100)))
+      {
+        gray++;
+      }
+      if ((r < 48) && (g < 48) && (b < 48))
+      {
+        black++;
+      }
+      if (((15 < r && r < 25) && (115 < g && g < 145) && (15 < b && b < 25)) ||
+          ((15 < r && r < 25) && (85 < g && g < 100) && (15 < b && b < 25)) ||
+          ((28 < r && r < 45) && (190 < g && g < 210) && (30 < b && b < 45)) ||
+          ((7 < r && r < 14) && (45 < g && g < 57) && (8 < b && b < 19)))
+      {
+        green++;
+      }
+      if (((5 < r && r < 15) && (30 < g && g < 50) && (85 < b && b < 108)) ||
+          ((18 < r && r < 40) && (114 < g && g < 150) && (205 < b && b < 244)))
+      {
+        blue++;
+      }
+      if (((7 < r && r < 16) && (59 < g && g < 74) && (59 < b && b < 74)) ||
+          ((30 < r && r < 49) && (170 < g && g < 180) && (140 < b && b < 155)) ||
+          ((30 < r && r < 49) && (180 < g && g < 195) && (157 < b && b < 173)) ||
+          ((30 < r && r < 49) && (200 < g && g < 240) && (190 < b && b < 220)))
+      {
+        aqua++;
+      }
+      if (((145 < r && r < 25) && (115 < g && g < 145) && (15 < b && b < 25)) ||
+          ((43 < r && r < 65) && (17 < g && g < 30) && (90 < b && b < 130)) ||
+          ((110 < r && r < 130) && (40 < g && g < 56) && (180 < b && b < 200)))
+      {
+        purple++;
+      }
+      if (((60 < r && r < 78) && (13 < g && g < 28) && (13 < b && b < 28)) ||
+          ((190 < r && r < 225) && (53 < g && g < 66) && (37 < b && b < 49)))
+      {
+        red++;
+      }
+      if (((205 < r && r < 220) && (195 < g && g < 205) && (25 < b && b < 36)) ||
+          ((65 < r && r < 75) && (63 < g && g < 74) && (8 < b && b < 18)))
+      {
+        yellow++;
+      }
+      if (((188 < r && r < 200) && (117 < g && g < 129) && (77 < b && b < 89)) ||
+          ((55 < r && r < 68) && (33 < g && g < 43) && (28 < b && b < 37)))
+      {
+        orange++;
+      }
+      if (((188 < r && r < 200) && (117 < g && g < 129) && (162 < b && b < 175)) ||
+          ((56 < r && r < 68) && (33 < g && g < 44) && (62 < b && b < 73)))
+      {
+        pink++;
+      }
+    }
+  }
+  printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nwalls: white=%d, gray=%d, \ntree/stump: black=%d\n",
+         total, green, blue, aqua, purple, red, yellow, orange, pink, white, gray, black);
+}
 
 void robot_control()
 {
-
 	////////////// TO GET RGB FROM THE CAMERA ///////////////////////////////////////////////////
-	// const unsigned char *image = wb_camera_get_image(4);
+	const unsigned char *image = wb_camera_get_image(4);
+
+  color_seen(image);
 	// for (int x = 0; x < 20; x++)
 	// {
-		// for (int y = 0; y < 20; y++) 
-		// {
-			// int r = wb_camera_image_get_red(image, 64, x, y);
-			// int g = wb_camera_image_get_green(image, 64, x, y);
-			// int b = wb_camera_image_get_blue(image, 64, x, y);
-			// printf("red=%d, green=%d, blue=%d \n", r, g, b);
-		// }
+	// 	for (int y = 0; y < 20; y++) 
+	// 	{
+	// 		int r = wb_camera_image_get_red(image, 64, x, y);
+	// 		int g = wb_camera_image_get_green(image, 64, x, y);
+	// 		int b = wb_camera_image_get_blue(image, 64, x, y);
+	// 		printf("red=%d, green=%d, blue=%d \n", r, g, b);
+	// 	}
 	// }
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -149,22 +238,22 @@ int main(int argc, char **argv)
   ///////////////////////// CHANGE CODE BELOW HERE ONLY ////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-  wb_accelerometer_enable(1,1);
-  wb_gps_enable(2,TIME_STEP);
-  wb_compass_enable(3,TIME_STEP);
+  // wb_accelerometer_enable(1,1);
+  // wb_gps_enable(2,TIME_STEP);
+  // wb_compass_enable(3,TIME_STEP);
   wb_camera_enable(4,TIME_STEP);
-  wb_camera_enable(5,TIME_STEP);
-  wb_camera_enable(6,TIME_STEP);
-  wb_camera_enable(7,TIME_STEP);
+  // wb_camera_enable(5,TIME_STEP);
+  // wb_camera_enable(6,TIME_STEP);
+  // wb_camera_enable(7,TIME_STEP);
   wb_camera_enable(8,TIME_STEP);
   wb_camera_enable(9,TIME_STEP);
   wb_camera_enable(10,TIME_STEP);
-  wb_camera_enable(11,TIME_STEP);
-  wb_gyro_enable(12,TIME_STEP);
-  wb_light_sensor_enable(13,TIME_STEP);
-  wb_receiver_enable(14,TIME_STEP);
-  wb_range_finder_enable(15,TIME_STEP);
-  wb_lidar_enable(16,1); 
+  // wb_camera_enable(11,TIME_STEP);
+  // wb_gyro_enable(12,TIME_STEP);
+  // wb_light_sensor_enable(13,TIME_STEP);
+  // wb_receiver_enable(14,TIME_STEP);
+  // wb_range_finder_enable(15,TIME_STEP);
+  // wb_lidar_enable(16,1); 
   
   //WbDeviceTag lidar = wb_robot_get_device("lidar");
   //wb_lidar_enable_point_cloud(lidar);
@@ -219,7 +308,7 @@ int main(int argc, char **argv)
     }
     if (i == 100)
     {
-    	base_reset();
+      base_reset();
     	base_turn_left();
     }
     if (i == 300)
@@ -228,7 +317,10 @@ int main(int argc, char **argv)
     }
     i++;
 
-    // robot_control();
+    // call robot control every 10 
+    if(i % 10 == 0) {
+      robot_control();
+    }
 
 
    //  if (wb_receiver_get_queue_length(rec) > 0) 
