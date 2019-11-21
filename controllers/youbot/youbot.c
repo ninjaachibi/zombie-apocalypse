@@ -95,8 +95,30 @@ void turn_right()
 ///////////////////////// CHANGE CODE BELOW HERE ONLY ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * typedefs go here
+*/
+typedef struct Colors
+{
+  unsigned int total;
+  unsigned int green;
+  unsigned int blue;
+  unsigned int aqua;
+  unsigned int purple;
+
+  unsigned int red;
+  unsigned int yellow;
+  unsigned int orange;
+  unsigned int pink;
+
+  unsigned int white;
+  unsigned int gray;
+  unsigned int black;
+
+} Colors;
+
 // function that counts colored pixels
-void color_seen(const unsigned char *image)
+Colors color_seen(const unsigned char *image)
 {
   int total = 0;
   int green = 0;
@@ -183,6 +205,22 @@ void color_seen(const unsigned char *image)
   }
   printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nwalls: white=%d, gray=%d, \ntree/stump: black=%d\n",
          total, green, blue, aqua, purple, red, yellow, orange, pink, white, gray, black);
+
+  Colors ret;
+
+  ret.total = total;
+  ret.green = green;
+  ret.aqua = aqua;
+  ret.purple = purple;
+  ret.red = red;
+  ret.yellow = yellow;
+  ret.orange = orange;
+  ret.pink = pink;
+  ret.white = white;
+  ret.gray = gray;
+  ret.black = black;
+
+  return ret;
 }
 
 void robot_control()
