@@ -128,7 +128,17 @@ typedef enum {
   PINK
 } berry_colors_t;
 
+// typedef struct BerryScore {
+//   int red_count;
+//   int yellow_count;
+//   int orange_count;
+//   int pink_count;
+// } BerryScore;
 
+typedef struct Berry {
+  int score;
+  berry_colors_t color;
+} Berry;
 
 /**
  * helper functions
@@ -365,6 +375,150 @@ void wrap_turn_right (int *turning, int *start_turning_i, int i) {
   *start_turning_i = i;
   stop();
   turn_right();
+
+  
+/**
+ * returns an array of booleans in the order [red,yellow,orange,pink]
+ * that indicates if the given berry color exists in the image
+ * ex:[0,0,0,0] means that there are no berries in the image
+*/
+int *getBerriesInImage(Colors color_map) {
+  int *berries_in_image;
+  berries_in_image = malloc(sizeof(int) * 4);
+
+  berries_in_image[0] = color_map.red > 10;
+  berries_in_image[1] = color_map.orange > 10;
+  berries_in_image[2] = color_map.pink > 10;
+  berries_in_image[3] = color_map.yellow > 10; 
+
+  return berries_in_image;
+}
+
+
+/**
+ * Returns 1 if the list has berries, 0 otherwise
+*/
+int hasAnyBerries(int *berryList) {
+  for (int i = 0; i < 4; i++) {
+    if (berryList[i] > 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+// // return a state instead??
+// void avoid_zombies(const unsigned char *front, const unsigned char *back, const unsigned char *right, const unsigned char *left) {
+//   Colors front_cols = color_seen(front);
+//   Colors back_cols = color_seen(back);
+//   Colors right_cols = color_seen(right);
+//   Colors left_cols = color_seen(left);
+  
+//   // If losing health, drop everything and move forward or backward
+//   if (losing_health()) {
+//     if (too_close_wall(front) || (!clear(front))) {
+//       go_backward();
+//     }
+//     else {
+//       go_forward();
+//     }
+//   }
+  
+//   // Everything clear so stop
+//   if (clear(front_cols) && clear(back_cols) && clear(right_cols) && clear(left_cols)) {
+//     // pass in robot energy and put threshold here?
+//     stop();
+//   }
+  
+//   // Front is clear but another direction isn't
+//   else if (clear(front_cols)) {
+//     if (!too_close_wall(front_cols)) {
+//       go_forward();
+//     }
+//     else {
+//       if (clear(back_cols)) {
+//         go_backward();
+//       }
+//       else if (clear(right_cols) && clear(left_cols)) {
+//         // choose direction for now to see if it works
+//         // berry_finder() to determine turn direction
+//         turn_right();
+//       }
+//       else if (clear(right_cols)) {
+//         turn_right();
+//       }
+//       // left clear
+//       else {
+//         turn_left();
+//       }
+//     }
+//   }
+  
+//   // Front is not clear
+//   else {
+//     if (clear(back_cols) && (!too_close_wall(back_cols))) {
+//       // no need to see if we should turn instead of going back?
+//       go_backward();
+//     }
+//     else if (clear(right_cols) && clear(left_cols)) {
+//       // choose direction for now to see if it works
+//       // berry_finder() to determine turn direction
+//       turn_right();
+//     }
+//     else if (clear(right_cols)) {
+//       turn_right();
+//     }
+//     else if (clear(left_cols)){
+//       turn_left();
+//     }
+//     // nothing clear, find least bad path
+//     // is it ever worth to turn left or right instead of going forward/backward? 
+//     else {
+//       if (too_close_wall(front_cols)) {
+//         go_backward();
+//       }
+//       else if (too_close_wall(back_cols)) {
+//         go_forward();
+//       }
+//       else if ((back_cols.aqua < threshold) && (front_cols.aqua < threshold)) {
+//         if ((back_cols.purple < threshold) && (front_cols.purple < threshold)) {
+//           if ((back_cols.green < threshold) && (front_cols.green < threshold)) {
+//             // can't both be clear because surrounded on all sides
+//             if (back_cols.blue < threshold) {
+//               go_backward();
+//             }
+//             else {
+//               go_forward();
+//             }
+//           }
+//           else if (back_cols.green < threshold) {
+//             go_backward();
+//           }
+//           else {
+//             go_forward();
+//           }
+//         }
+//         else if (back_cols.purple < threshold) {
+//           go_backward();
+//         }
+//         else {
+//           go_forward();
+//         }
+//       }
+//       else if (back_cols.aqua < threshold) {
+//         go_backward();
+//       }
+//       else {
+//         go_forward();
+//       }
+//     }
+//   }
+// }
+
+
+int hasBerryColor(int *berryList, Berry berry) {
+  berry_colors_t color = berry.color;
+  return berryList[color];
+>>>>>>> 0550cd5a0fa0e9acbef80759e84f2e000c22d0d3
 }
 
 
@@ -410,11 +564,17 @@ int main(int argc, char **argv)
   // int i = 0;
 
 
-
   robot_states_t State = AVOID_ZOMBIE;
 
   /* initialize the scores for berries priorities */
-  // int berryScores[4] = {0,0,0,0}; // order is [red,yellow,orange,pink]
+  Berry berryScores[4] = {
+    {.color = RED, .score = 0},
+    {.color = YELLOW, .score = 0},
+    {.color = ORANGE, .score = 0},
+    {.color = PINK, .score = 0}
+  }; 
+  // order is [red,yellow,orange,pink]
+
 
   int losing_health = 0;
   int prev_health = 100;
@@ -626,8 +786,8 @@ int main(int argc, char **argv)
       }
       break;
 
-    case GET_BERRY:
-      /*
+    case GET_BERRY: ;
+      /**
        * if state is get berry, do berry-getting behavior
        * 
        * global berryPriorityList = []
@@ -655,7 +815,64 @@ int main(int argc, char **argv)
        * update global state
        */
 
+      const unsigned char *frontImage = wb_camera_get_image(4);
+      const unsigned char *backImage = wb_camera_get_image(8);
+      const unsigned char *rightImage = wb_camera_get_image(9);
+      const unsigned char *leftImage = wb_camera_get_image(10);
+
+      Colors frontColors = color_seen(frontImage, 4);
+      Colors backColors = color_seen(backImage,8);
+      Colors rightColors = color_seen(rightImage,9);
+      Colors leftColors = color_seen(leftImage,10);
+
+      int *berriesFrontList = getBerriesInImage(frontColors);
+      int *berriesBackList = getBerriesInImage(backColors);
+      int *berriesRightList = getBerriesInImage(rightColors);
+      int *berriesLeftList = getBerriesInImage(leftColors);
+
+      for (int j = 0; j < 4; j++) {
+        // get this ranked berry
+        Berry berry = berryScores[j];
+
+        if (hasBerryColor(berriesFrontList, berry)) 
+        {
+          go_forward();
+          printf("berry in front, %d\n", i);
+          break;
+        }
+        else if (hasBerryColor(berriesBackList, berry))
+        {
+          go_backward();
+          printf("berry in back, %d\n", i);
+          break;
+        }
+        else {
+          // for these, check if they're in the middle of the frame
+          if (hasBerryColor(berriesRightList, berry)) 
+          {
+            turn_right();
+            printf("berry in right, %d\n", i);
+            break;
+          }
+          else if (hasBerryColor(berriesLeftList, berry)) 
+          {
+            turn_left();
+            printf("berry in left, %d\n", i);
+            break;
+          }
+        }
+
+      }
       
+
+      // if we hit a berry, update our score table
+
+
+      free(berriesFrontList);
+      free(berriesBackList);
+      free(berriesRightList);
+      free(berriesLeftList);
+
       break;
 
     default:
