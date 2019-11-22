@@ -1,6 +1,6 @@
 Webots Project File version R2019b
-perspectives: 000000ff00000000fd00000003000000000000000000000000fc0100000001fb0000001a0044006f00630075006d0065006e0074006100740069006f006e0000000000ffffffff0000008700ffffff000000010000025800000314fc0200000001fb0000001400540065007800740045006400690074006f007202000002c200000073000002580000031400000003000006900000008efc0100000001fb0000000e0043006f006e0073006f006c00650100000000000006900000008700ffffff000006900000031400000001000000020000000100000008fc00000000
-simulationViewPerspectives: 000000ff000000010000000200000100000004720100000002010000000100
+perspectives: 000000ff00000000fd00000003000000000000000000000000fc0100000001fb0000001a0044006f00630075006d0065006e0074006100740069006f006e0000000000ffffffff0000008700ffffff000000010000025800000314fc0200000001fb0000001400540065007800740045006400690074006f007202000002a80000000c00000500000001a3000000030000050000000099fc0100000001fb0000000e0043006f006e0073006f006c00650100000000000005000000008700ffffff000005000000026a00000001000000020000000100000008fc00000000
+simulationViewPerspectives: 000000ff000000010000000200000000000004fe0100000002010000000100
 sceneTreePerspectives: 000000ff00000001000000020000022b000000fa0100000002010000000200
 maximizedDockId: -1
 centralWidgetVisible: 1
@@ -8,12 +8,12 @@ selectionDisabled: 0
 viewpointLocked: 0
 orthographicViewHeight: 1
 textFiles: 0 "controllers/youbot/youbot.c"
-renderingDevicePerspectives: youBot:ForwardHighResSmallFov;1;0.25;0;0
-renderingDevicePerspectives: youBot:range-finder;0;6.8125;0;0
-renderingDevicePerspectives: youBot:RightLowRes;0;0.5;0;0
-renderingDevicePerspectives: youBot:LeftLowRes;0;0.5;0;0
-renderingDevicePerspectives: youBot:ForwardHighRes;1;0.25;0;0
-renderingDevicePerspectives: youBot:ForwardLowResBigFov;1;0.5;0;0
-renderingDevicePerspectives: youBot:ForwardHighResBigFov;1;0.25;0;0
-renderingDevicePerspectives: youBot:BackLowRes;1;1.59375;0;0
+renderingDevicePerspectives: youBot:ForwardHighRes;0;0.648438;0;0.513417
+renderingDevicePerspectives: youBot:range-finder;0;4.4375;0;0
+renderingDevicePerspectives: youBot:ForwardLowResBigFov;1;1.29688;0;0.146691
+renderingDevicePerspectives: youBot:ForwardHighResBigFov;0;0.648438;0;0.332737
+renderingDevicePerspectives: youBot:RightLowRes;1;1.30469;0;0.561717
+renderingDevicePerspectives: youBot:ForwardHighResSmallFov;0;0.648438;0;0.683363
 renderingDevicePerspectives: youBot:BackHighRes;0;0.25;0;0
+renderingDevicePerspectives: youBot:LeftLowRes;1;1.29688;0;0.765653
+renderingDevicePerspectives: youBot:BackLowRes;1;1.3125;0;0.36136
