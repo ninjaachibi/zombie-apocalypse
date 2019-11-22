@@ -351,8 +351,8 @@ void robot_control()
   struct Colors right_colors = color_seen(right_image);
 
   // print_Colors(right_colors);
-  if (near_obstacle(front_colors, front_image))
-     {printf("OBSTACLE\nwall=%d, black=%d\n", front_colors.wall, front_colors.black);}
+  // if (near_obstacle(front_colors, front_image))
+  //    {printf("OBSTACLE\nwall=%d, black=%d\n", front_colors.wall, front_colors.black);}
 }
 
 
@@ -451,78 +451,78 @@ int main(int argc, char **argv)
 
 
 
-    // if (i < 100)
-    // {
-    // 	base_forwards();
-    // }
-    // if (i == 100)
-    // {
-    //   base_reset();
-    // 	base_turn_left();
-    // }
-    // if (i == 300)
-    // {
-    // 	i = 0;
-    // }
-    // i++;
+    if (i < 100)
+    {
+    	base_forwards();
+    }
+    if (i == 100)
+    {
+      base_reset();
+    	base_turn_left();
+    }
+    if (i == 300)
+    {
+    	i = 0;
+    }
+    i++;
 
-    // // call robot control every 10 
+    // call robot control every 10 
 
-    // char imageFileName[32];
+    char imageFileName[32];
 
-    // if (i % 10 == 0) {
-    //   robot_control();
+    if (i % 10 == 0) {
+      robot_control();
 
-    //   // DEBUG: dump image in file
-    //   // sprintf(imageFileName, "image%06d.png", i);
-    //   // wb_camera_save_image(4, imageFileName,100);
-    // }
+      // DEBUG: dump image in file
+      // sprintf(imageFileName, "image%06d.png", i);
+      // wb_camera_save_image(4, imageFileName,100);
+    }
 
-    // /* Finite State Machine */
-    // switch (State)
-    // {
-    // case AVOID_OBSTACLE:
-    //   /* code */
-    //   break;
+    /* Finite State Machine */
+    switch (State)
+    {
+    case AVOID_OBSTACLE:
+      /* code */
+      break;
 
-    // case AVOID_ZOMBIE:
-    //   /* code */
-    //   break;
+    case AVOID_ZOMBIE:
+      /* code */
+      break;
 
-    // case GET_BERRY:
-    //   *
-    //    * if state is get berry, do berry-getting behavior
-    //    * 
-    //    * global berryPriorityList = []
-    //    * 
-    //    * best_berry = RED;
-    //    * get camera image for front, left, right, back
-    //    * 
-    //    * berries1 = getBerriesinImage(image1) // process if berries present in each image
-    //    * ...
-    //    * berries4 = getBerriesinImage(image4) 
-    //    * 
-    //    * for next highest priority berry in berryPriorityList:
-    //    *  if berry in front or back:
-    //    *    move robot front or backwards:
-    //    *    break;
-    //    *  else if berry left or right:
-    //    *    move robot left or right
-    //    *    break;
-    //    *  
-    //    * 
-    //    * if armor, health, or energy change by enough
-    //    *  update berry priority list
-    //    * 
-    //    * check surroundings
-    //    * update global state
-    //    * 
+    case GET_BERRY:
+      /*
+       * if state is get berry, do berry-getting behavior
+       * 
+       * global berryPriorityList = []
+       * 
+       * best_berry = RED;
+       * get camera image for front, left, right, back
+       * 
+       * berries1 = getBerriesinImage(image1) // process if berries present in each image
+       * ...
+       * berries4 = getBerriesinImage(image4) 
+       * 
+       * for next highest priority berry in berryPriorityList:
+       *  if berry in front or back:
+       *    move robot front or backwards:
+       *    break;
+       *  else if berry left or right:
+       *    move robot left or right
+       *    break;
+       *  
+       * 
+       * if armor, health, or energy change by enough
+       *  update berry priority list
+       * 
+       * check surroundings
+       * update global state
+       */
 
       
-    //   break;
-    // default:
-    //   break;
-    // }
+      break;
+    default:
+      break;
+    }
 
 
     
