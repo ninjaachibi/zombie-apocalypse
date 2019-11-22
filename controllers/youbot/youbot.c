@@ -128,7 +128,17 @@ typedef enum {
   PINK
 } berry_colors_t;
 
+// typedef struct BerryScore {
+//   int red_count;
+//   int yellow_count;
+//   int orange_count;
+//   int pink_count;
+// } BerryScore;
 
+typedef struct Berry {
+  int score;
+  berry_colors_t color;
+} Berry;
 
 /**
  * helper functions
@@ -369,6 +379,36 @@ int clear(Colors colors) {
   return 0;
 }
 
+  
+/**
+ * returns an array of booleans in the order [red,yellow,orange,pink]
+ * that indicates if the given berry color exists in the image
+ * ex:[0,0,0,0] means that there are no berries in the image
+*/
+int *getBerriesInImage(Colors color_map) {
+  int *berries_in_image;
+  berries_in_image = malloc(sizeof(int) * 4);
+
+  berries_in_image[0] = color_map.red > 10;
+  berries_in_image[1] = color_map.orange > 10;
+  berries_in_image[2] = color_map.pink > 10;
+  berries_in_image[3] = color_map.yellow > 10; 
+
+  return berries_in_image;
+}
+
+
+/**
+ * Returns 1 if the list has berries, 0 otherwise
+*/
+int hasAnyBerries(int *berryList) {
+  for (int i = 0; i < 4; i++) {
+    if (berryList[i] > 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
 // // return a state instead??
 // void avoid_zombies(const unsigned char *front, const unsigned char *back, const unsigned char *right, const unsigned char *left) {
 //   Colors front_cols = color_seen(front);
@@ -478,6 +518,10 @@ int clear(Colors colors) {
 // }
 
 
+int hasBerryColor(int *berryList, Berry berry) {
+  berry_colors_t color = berry.color;
+  return berryList[color];
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -522,11 +566,17 @@ int main(int argc, char **argv)
   // int i = 0;
 
 
-
   robot_states_t State = AVOID_ZOMBIE;
 
   /* initialize the scores for berries priorities */
-  // int berryScores[4] = {0,0,0,0}; // order is [red,yellow,orange,pink]
+  Berry berryScores[4] = {
+    {.color = RED, .score = 0},
+    {.color = YELLOW, .score = 0},
+    {.color = ORANGE, .score = 0},
+    {.color = PINK, .score = 0}
+  }; 
+  // order is [red,yellow,orange,pink]
+
 
   int losing_health = 0;
   int prev_health = 100;
@@ -574,41 +624,8 @@ int main(int argc, char **argv)
     ///////////////////////// CHANGE CODE BELOW HERE ONLY ////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    // this is called everytime step.
-    go_forward();
-    robot_control();
 
-
-
-
-
-
-    // if (i < 100)
-    // {
-    // 	base_forwards();
-    // }
-    // if (i == 100)
-    // {
-    //   base_reset();
-    // 	base_turn_left();
-    // }
-    // if (i == 300)
-    // {
-    // 	i = 0;
-    // }
-    // i++;
-
-    // call robot control every 10 
-
-    // char imageFileName[32];
-
-    // if (i % 10 == 0) {
-    //   robot_control();
-
-    //   // DEBUG: dump image in file
-    //   // sprintf(imageFileName, "image%06d.png", i);
-    //   // wb_camera_save_image(4, imageFileName,100);
-    // }
+    i++;
 
     /* Finite State Machine */
     switch (State)
@@ -732,8 +749,8 @@ int main(int argc, char **argv)
       }
       break;
 
-    case GET_BERRY:
-      /*
+    case GET_BERRY: ;
+      /**
        * if state is get berry, do berry-getting behavior
        * 
        * global berryPriorityList = []
@@ -761,7 +778,64 @@ int main(int argc, char **argv)
        * update global state
        */
 
+      const unsigned char *frontImage = wb_camera_get_image(4);
+      const unsigned char *backImage = wb_camera_get_image(8);
+      const unsigned char *rightImage = wb_camera_get_image(9);
+      const unsigned char *leftImage = wb_camera_get_image(10);
+
+      Colors frontColors = color_seen(frontImage, 4);
+      Colors backColors = color_seen(backImage,8);
+      Colors rightColors = color_seen(rightImage,9);
+      Colors leftColors = color_seen(leftImage,10);
+
+      int *berriesFrontList = getBerriesInImage(frontColors);
+      int *berriesBackList = getBerriesInImage(backColors);
+      int *berriesRightList = getBerriesInImage(rightColors);
+      int *berriesLeftList = getBerriesInImage(leftColors);
+
+      for (int j = 0; j < 4; j++) {
+        // get this ranked berry
+        Berry berry = berryScores[j];
+
+        if (hasBerryColor(berriesFrontList, berry)) 
+        {
+          go_forward();
+          printf("berry in front, %d\n", i);
+          break;
+        }
+        else if (hasBerryColor(berriesBackList, berry))
+        {
+          go_backward();
+          printf("berry in back, %d\n", i);
+          break;
+        }
+        else {
+          // for these, check if they're in the middle of the frame
+          if (hasBerryColor(berriesRightList, berry)) 
+          {
+            turn_right();
+            printf("berry in right, %d\n", i);
+            break;
+          }
+          else if (hasBerryColor(berriesLeftList, berry)) 
+          {
+            turn_left();
+            printf("berry in left, %d\n", i);
+            break;
+          }
+        }
+
+      }
       
+
+      // if we hit a berry, update our score table
+
+
+      free(berriesFrontList);
+      free(berriesBackList);
+      free(berriesRightList);
+      free(berriesLeftList);
+
       break;
 
     default:
