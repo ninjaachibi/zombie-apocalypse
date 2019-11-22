@@ -116,6 +116,21 @@ typedef struct Colors {
   
 } Colors;
 
+typedef enum
+{
+  AVOID_ZOMBIE,
+  AVOID_OBSTACLE,
+  GET_BERRY,
+} robot_states_t;
+
+typedef enum {
+  RED,
+  YELLOW, 
+  ORANGE,
+  PINK
+} berry_colors_t;
+
+
 int above_stump(int b_x, int b_y, const unsigned char *image)
 {
   for (int temp_y = b_y; temp_y < 64; temp_y+=1)
@@ -155,9 +170,10 @@ struct Colors color_seen(const unsigned char *image)
   {
     for (int y = 0; y < 64; y+=1) 
     {
-              total++;
-              int r = wb_camera_image_get_red(image, 128, x, y);
-            int g = wb_camera_image_get_green(image, 128, x, y);
+
+        total++;
+        int r = wb_camera_image_get_red(image, 128, x, y);
+        int g = wb_camera_image_get_green(image, 128, x, y);
         int b = wb_camera_image_get_blue(image, 128, x, y);
         
           // zombies    
@@ -343,21 +359,21 @@ int main(int argc, char **argv)
   ///////////////////////// CHANGE CODE BELOW HERE ONLY ////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-  wb_camera_enable(4,TIME_STEP);
-  wb_camera_enable(8,TIME_STEP);
-  wb_camera_enable(9,TIME_STEP);
-  wb_camera_enable(10,TIME_STEP);
+
+  wb_camera_enable(4,TIME_STEP); // front of robot
+  wb_camera_enable(8,TIME_STEP); // back
+  wb_camera_enable(9,TIME_STEP); // right
+  wb_camera_enable(10,TIME_STEP); // left
+
 
   int i = 0;
 
-  typedef enum
-  {
-    AVOID_ZOMBIE,
-    AVOID_OBSTACLE,
-    GET_BERRY,
-  } robot_states_t;
+
 
   robot_states_t State = GET_BERRY;
+
+  /* initialize the scores for berries priorities */
+  int berryScores[4] = {0,0,0,0}; // order is [red,yellow,orange,pink]
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CHANGE CODE ABOVE HERE ONLY ////////////////////////////////////////////////////
