@@ -315,14 +315,12 @@ int main(int argc, char **argv)
  
   int i = 0;
 
-  typedef enum
-  {
-    AVOID_ZOMBIE,
-    AVOID_OBSTACLE,
-    GET_BERRY,
-  } robot_states_t;
+
 
   robot_states_t State = GET_BERRY;
+
+  /* initialize the scores for berries priorities */
+  int berryScores[4] = {0,0,0,0}; // order is [red,yellow,orange,pink]
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CHANGE CODE ABOVE HERE ONLY ////////////////////////////////////////////////////
