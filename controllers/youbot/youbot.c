@@ -140,9 +140,9 @@ Colors color_seen(const unsigned char *image)
     for (int y = 0; y < 64; y += 1)
     {
       total++;
-      int r = wb_camera_image_get_red(image, 64, x, y);
-      int g = wb_camera_image_get_green(image, 64, x, y);
-      int b = wb_camera_image_get_blue(image, 64, x, y);
+      int r = wb_camera_image_get_red(image, 128, x, y);
+      int g = wb_camera_image_get_green(image, 128, x, y);
+      int b = wb_camera_image_get_blue(image, 128, x, y);
 
       if ((r > 208) && (g > 208) && (b > 208))
       {
