@@ -112,8 +112,7 @@ typedef struct Colors {
   unsigned int mid_pink;
   
   unsigned int wall;
-  unsigned int black;
-  
+  unsigned int black; 
 } Colors;
 
 typedef enum
@@ -131,6 +130,11 @@ typedef enum {
 } berry_colors_t;
 
 
+
+/**
+ * helper functions
+*/
+// returns 1 if above berry at (b_x, b_y) is above a stump
 int above_stump(int b_x, int b_y, const unsigned char *image)
 {
   for (int temp_y = b_y; temp_y < 64; temp_y+=1)
@@ -260,6 +264,7 @@ struct Colors color_seen(const unsigned char *image)
   return res;
 }
 
+// returns 1 if too close to obstacle (-> DEFINITELY TURN OR GO BACKWARDS)
 int near_obstacle(struct Colors c, const unsigned char *image)
 {
   if (c.black > 1000 || c.wall > 5400)
@@ -302,6 +307,7 @@ int near_obstacle(struct Colors c, const unsigned char *image)
   return 0;
 }
 
+
 void robot_control()
 {
   const unsigned char *front_image = wb_camera_get_image(4);
@@ -319,12 +325,11 @@ void robot_control()
 
 
 
-
+// used for debugging color_seen function
 void print_Colors(struct Colors c)
 {
     printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", 
           c.total, c.green, c.blue, c.aqua, c.purple, c.red, c.yellow, c.orange, c.pink, c.mid_red, c.mid_yellow, c.mid_orange, c.mid_pink, c.wall, c.black);
-  
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -402,8 +407,6 @@ int main(int argc, char **argv)
 
     step();
 
-
-    
     int c = keyboard(pc);
     pc = c;
     timer=timer+1;
