@@ -301,6 +301,15 @@ int main(int argc, char **argv)
  
   int i = 0;
 
+  typedef enum
+  {
+    AVOID_ZOMBIE,
+    AVOID_OBSTACLE,
+    GET_BERRY,
+  } robot_states_t;
+
+  robot_states_t State = GET_BERRY;
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CHANGE CODE ABOVE HERE ONLY ////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,12 +366,67 @@ int main(int argc, char **argv)
     i++;
 
     // call robot control every 10 
-    if(i % 10 == 0) {
+
+    char imageFileName[32];
+
+    if (i % 10 == 0) {
       robot_control();
+
+      // DEBUG: dump image in file
+      // sprintf(imageFileName, "image%06d.png", i);
+      // wb_camera_save_image(4, imageFileName,100);
+    }
+
+    /* Finite State Machine */
+    switch (State)
+    {
+    case AVOID_OBSTACLE:
+      /* code */
+      break;
+
+    case AVOID_ZOMBIE:
+      /* code */
+      break;
+
+    case GET_BERRY:
+      /**
+       * if state is get berry, do berry-getting behavior
+       * 
+       * global berryPriorityList = []
+       * 
+       * best_berry = RED;
+       * get camera image for front, left, right, back
+       * 
+       * berries1 = getBerriesinImage(image1) // process if berries present in each image
+       * ...
+       * berries4 = getBerriesinImage(image4) 
+       * 
+       * for next highest priority berry in berryPriorityList:
+       *  if berry in front or back:
+       *    move robot front or backwards:
+       *    break;
+       *  else if berry left or right:
+       *    move robot left or right
+       *    break;
+       *  
+       * 
+       * if armor, health, or energy change by enough
+       *  update berry priority list
+       * 
+       * check surroundings
+       * update global state
+       * */
+
+      
+      break;
+    default:
+      break;
     }
 
 
-   //  if (wb_receiver_get_queue_length(rec) > 0) 
+    
+
+    //  if (wb_receiver_get_queue_length(rec) > 0)
   	// {
   	// 	const char *buffer = wb_receiver_get_data(rec);
    //      printf("Communicating: received \"%s\"\n", buffer);
