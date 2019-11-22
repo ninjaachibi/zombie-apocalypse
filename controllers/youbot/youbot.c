@@ -77,7 +77,6 @@ void turn_left()
 	robot_angle = robot_angle + 90;
 	if (robot_angle == 360)
 		robot_angle = 0;
-
 }
 
 void turn_right()
