@@ -387,7 +387,6 @@ int clear(Colors colors) {
 */
 int *getBerriesInImage(Colors color_map) {
   int *berries_in_image;
-
   berries_in_image = malloc(sizeof(int) * 4);
 
   berries_in_image[0] = color_map.red > 10;
@@ -567,7 +566,7 @@ int main(int argc, char **argv)
   // int i = 0;
 
 
-  robot_states_t State = GET_BERRY;
+  robot_states_t State = AVOID_ZOMBIE;
 
   /* initialize the scores for berries priorities */
   Berry berryScores[4] = {
@@ -577,6 +576,7 @@ int main(int argc, char **argv)
     {.color = PINK, .score = 0}
   }; 
   // order is [red,yellow,orange,pink]
+
 
   int losing_health = 0;
   int prev_health = 100;
@@ -624,37 +624,8 @@ int main(int argc, char **argv)
     ///////////////////////// CHANGE CODE BELOW HERE ONLY ////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    // this is called everytime step.
 
-
-
-
-    // if (i < 100)
-    // {
-    // 	base_forwards();
-    // }
-    // if (i == 100)
-    // {
-    //   base_reset();
-    // 	base_turn_left();
-    // }
-    // if (i == 300)
-    // {
-    // 	i = 0;
-    // }
     i++;
-
-    // call robot control every 10 
-
-    // char imageFileName[32];
-
-    // if (i % 10 == 0) {
-    //   robot_control();
-
-    //   // DEBUG: dump image in file
-    //   // sprintf(imageFileName, "image%06d.png", i);
-    //   // wb_camera_save_image(4, imageFileName,100);
-    // }
 
     /* Finite State Machine */
     switch (State)
