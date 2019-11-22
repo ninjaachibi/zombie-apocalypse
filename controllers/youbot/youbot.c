@@ -248,7 +248,7 @@ struct Colors color_seen(const unsigned char *image)
                { black++; }
     }
   }
-  printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", total, green, blue, aqua, purple, red, yellow, orange, pink, mid_red, mid_yellow, mid_orange, mid_pink, wall, black);
+  // printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", total, green, blue, aqua, purple, red, yellow, orange, pink, mid_red, mid_yellow, mid_orange, mid_pink, wall, black);
   
   struct Colors res = {
     .total=total,
@@ -312,7 +312,7 @@ int near_obstacle(struct Colors c, const unsigned char *image)
       }
   }
   int horiz_strip = 0;
-  for (int y = 30; y < 64; y+=1)  // if a pixel is cliff wall, check if horizontal strip near bottom is cliff wall
+  for (int y = 20; y < 64; y+=1)  // if a pixel is cliff wall, check if horizontal strip near bottom is cliff wall
   {
     int r = wb_camera_image_get_red(image, 128, 25, y);
     int g = wb_camera_image_get_green(image, 128, 25, y);
@@ -348,36 +348,33 @@ void print_Colors(struct Colors c)
           c.total, c.green, c.blue, c.aqua, c.purple, c.red, c.yellow, c.orange, c.pink, c.mid_red, c.mid_yellow, c.mid_orange, c.mid_pink, c.wall, c.black);
 }
 
-
-
-// void robot_control()
-// {
-//   const unsigned char *front_image = wb_camera_get_image(4);
-//   const unsigned char *back_image = wb_camera_get_image(8);
-//   const unsigned char *right_image = wb_camera_get_image(9);
-//   const unsigned char *left_image = wb_camera_get_image(10);
-  
-//   struct Colors front_colors = color_seen(front_image);
-//   struct Colors right_colors = color_seen(right_image);
-
-//   // print_Colors(right_colors);
-//        if (near_obstacle(front_colors, front_image))
-//          {printf("OBSTACLE\nwall=%d, black=%d\n", front_colors.wall, front_colors.black);}
-// }
-
 int threshold = 150;
+int side_threshold = 75;
 
   // print_Colors(right_colors);
   // if (near_obstacle(front_colors, front_image))
   //    {printf("OBSTACLE\nwall=%d, black=%d\n", front_colors.wall, front_colors.black);}
 
 // Could have different threshold for aqua vs others
-int clear(Colors colors) {
+int clear(Colors colors, int threshold) {
   if ((colors.green < threshold) && (colors.aqua < threshold) && (colors.purple < threshold) && (colors.blue < threshold)) {
      return 1;
   }
   return 0;
 }
+
+void wrap_turn_left (int *turning, int *start_turning_i, int i) {
+  *turning = 1;
+  *start_turning_i = i;
+  stop();
+  turn_left();
+}
+
+void wrap_turn_right (int *turning, int *start_turning_i, int i) {
+  *turning = 1;
+  *start_turning_i = i;
+  stop();
+  turn_right();
 
   
 /**
@@ -409,114 +406,6 @@ int hasAnyBerries(int *berryList) {
   }
   return 0;
 }
-// // return a state instead??
-// void avoid_zombies(const unsigned char *front, const unsigned char *back, const unsigned char *right, const unsigned char *left) {
-//   Colors front_cols = color_seen(front);
-//   Colors back_cols = color_seen(back);
-//   Colors right_cols = color_seen(right);
-//   Colors left_cols = color_seen(left);
-  
-//   // If losing health, drop everything and move forward or backward
-//   if (losing_health()) {
-//     if (too_close_wall(front) || (!clear(front))) {
-//       go_backward();
-//     }
-//     else {
-//       go_forward();
-//     }
-//   }
-  
-//   // Everything clear so stop
-//   if (clear(front_cols) && clear(back_cols) && clear(right_cols) && clear(left_cols)) {
-//     // pass in robot energy and put threshold here?
-//     stop();
-//   }
-  
-//   // Front is clear but another direction isn't
-//   else if (clear(front_cols)) {
-//     if (!too_close_wall(front_cols)) {
-//       go_forward();
-//     }
-//     else {
-//       if (clear(back_cols)) {
-//         go_backward();
-//       }
-//       else if (clear(right_cols) && clear(left_cols)) {
-//         // choose direction for now to see if it works
-//         // berry_finder() to determine turn direction
-//         turn_right();
-//       }
-//       else if (clear(right_cols)) {
-//         turn_right();
-//       }
-//       // left clear
-//       else {
-//         turn_left();
-//       }
-//     }
-//   }
-  
-//   // Front is not clear
-//   else {
-//     if (clear(back_cols) && (!too_close_wall(back_cols))) {
-//       // no need to see if we should turn instead of going back?
-//       go_backward();
-//     }
-//     else if (clear(right_cols) && clear(left_cols)) {
-//       // choose direction for now to see if it works
-//       // berry_finder() to determine turn direction
-//       turn_right();
-//     }
-//     else if (clear(right_cols)) {
-//       turn_right();
-//     }
-//     else if (clear(left_cols)){
-//       turn_left();
-//     }
-//     // nothing clear, find least bad path
-//     // is it ever worth to turn left or right instead of going forward/backward? 
-//     else {
-//       if (too_close_wall(front_cols)) {
-//         go_backward();
-//       }
-//       else if (too_close_wall(back_cols)) {
-//         go_forward();
-//       }
-//       else if ((back_cols.aqua < threshold) && (front_cols.aqua < threshold)) {
-//         if ((back_cols.purple < threshold) && (front_cols.purple < threshold)) {
-//           if ((back_cols.green < threshold) && (front_cols.green < threshold)) {
-//             // can't both be clear because surrounded on all sides
-//             if (back_cols.blue < threshold) {
-//               go_backward();
-//             }
-//             else {
-//               go_forward();
-//             }
-//           }
-//           else if (back_cols.green < threshold) {
-//             go_backward();
-//           }
-//           else {
-//             go_forward();
-//           }
-//         }
-//         else if (back_cols.purple < threshold) {
-//           go_backward();
-//         }
-//         else {
-//           go_forward();
-//         }
-//       }
-//       else if (back_cols.aqua < threshold) {
-//         go_backward();
-//       }
-//       else {
-//         go_forward();
-//       }
-//     }
-//   }
-// }
-
 
 int hasBerryColor(int *berryList, Berry berry) {
   berry_colors_t color = berry.color;
@@ -580,10 +469,13 @@ int main(int argc, char **argv)
 
   int losing_health = 0;
   int prev_health = 100;
-
+  int i = 0;
+  int turning = 0;
+  int start_turning_i = 0;
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CHANGE CODE ABOVE HERE ONLY ////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   while (robot_not_dead == 1) 
   {
 
@@ -603,13 +495,6 @@ int main(int argc, char **argv)
     if (timer == 16)
     {
         update_robot(&robot_info);
-        if (robot_info.health < prev_health) {
-          prev_health = robot_info.health;
-          losing_health = 1;
-        }
-        else {
-          losing_health = 0;
-        }
         timer = 0;
     }
 
@@ -623,9 +508,26 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////// CHANGE CODE BELOW HERE ONLY ////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+    if (timer == 16)
+    {
+      if (robot_info.health < prev_health) {
+        prev_health = robot_info.health;
+        losing_health = 1;
+      }
+      else {
+        losing_health = 0;
+      }
+    }
 
     i++;
+    if (turning == 1)
+    {
+      if (i - start_turning_i < 173)
+         {continue;}
+      else
+        {turning = 0;
+         continue;}
+    }
 
     /* Finite State Machine */
     switch (State)
@@ -646,64 +548,85 @@ int main(int argc, char **argv)
       Colors right_cols = color_seen(right);
       Colors left_cols = color_seen(left);
 
+      print_Colors(back_cols);
 
       
       // If losing health, drop everything and move forward or backward
-      if (losing_health) {
-        if (near_obstacle(front_cols, front) || (!clear(front_cols))) {
+      if (losing_health && (robot_info.energy != 0)) {
+        if (near_obstacle(front_cols, front) || (!clear(front_cols, threshold))) {
           go_backward();
         }
         else {
           go_forward();
         }
       }
+
+      else if ((near_obstacle(front_cols, front) && near_obstacle(right_cols, right)) || 
+               (near_obstacle(front_cols, front) && near_obstacle(left_cols, left))  ||
+               (near_obstacle(back_cols, back) && near_obstacle(left_cols, left)) ||
+               (near_obstacle(back_cols, back) && near_obstacle(right_cols, right))) {
+        if (near_obstacle(front_cols, front) && near_obstacle(right_cols, right)) {
+          wrap_turn_right(&turning, &start_turning_i, i);
+        }
+        else if (near_obstacle(front_cols, front) && near_obstacle(left_cols, left)) {
+          wrap_turn_left(&turning, &start_turning_i, i);
+        }
+        else if (near_obstacle(back_cols, back) && near_obstacle(left_cols, left)) {
+          wrap_turn_right(&turning, &start_turning_i, i);
+        }
+        else {
+          wrap_turn_left(&turning, &start_turning_i, i);
+        }
+      }
       
       // Everything clear so stop
-      else if (clear(front_cols) && clear(back_cols) && clear(right_cols) && clear(left_cols)) {
+      else if (clear(front_cols, threshold) && clear(back_cols, threshold) && clear(right_cols, side_threshold) && clear(left_cols, side_threshold)) {
         // pass in robot energy and put threshold here?
         stop();
       }
       
       // Front is clear but another direction isn't
-      else if (clear(front_cols)) {
+      else if (clear(front_cols, threshold)) {
         if (!near_obstacle(front_cols, front)) {
           go_forward();
         }
         else {
-          if (clear(back_cols)) {
+          if (clear(back_cols, threshold)) {
             go_backward();
           }
-          else if (clear(right_cols) && clear(left_cols)) {
+          else if (clear(right_cols, side_threshold) && clear(left_cols, side_threshold)) {
             // choose direction for now to see if it works
             // berry_finder() to determine turn direction
-            turn_right();
+            wrap_turn_right(&turning, &start_turning_i, i);
           }
-          else if (clear(right_cols)) {
-            turn_right();
+          else if (clear(right_cols, side_threshold)) {
+            wrap_turn_right(&turning, &start_turning_i, i);
           }
           // left clear
           else {
-            turn_left();
+            wrap_turn_left(&turning, &start_turning_i, i);
+
           }
         }
       }
       
       // Front is not clear
       else {
-        if (clear(back_cols) && (!near_obstacle(back_cols, back))) {
+        if (clear(back_cols, threshold) && (!near_obstacle(back_cols, back))) {
           // no need to see if we should turn instead of going back?
           go_backward();
         }
-        else if (clear(right_cols) && clear(left_cols)) {
+        else if (clear(right_cols, side_threshold) && clear(left_cols, side_threshold)) {
           // choose direction for now to see if it works
           // berry_finder() to determine turn direction
-          turn_right();
+          wrap_turn_right(&turning, &start_turning_i, i);
         }
-        else if (clear(right_cols)) {
-          turn_right();
+        else if (clear(right_cols, side_threshold)) {
+          wrap_turn_right(&turning, &start_turning_i, i);
         }
-        else if (clear(left_cols)){
-          turn_left();
+        else if (clear(left_cols, side_threshold)){
+          wrap_turn_left(&turning, &start_turning_i, i);
+
         }
         // nothing clear, find least bad path
         // is it ever worth to turn left or right instead of going forward/backward? 
