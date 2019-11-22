@@ -128,13 +128,17 @@ typedef enum {
   PINK
 } berry_colors_t;
 
-typedef struct BerryScore {
-  int red_count;
-  int yellow_count;
-  int orange_count;
-  int pink_count;
-} BerryScore;
+// typedef struct BerryScore {
+//   int red_count;
+//   int yellow_count;
+//   int orange_count;
+//   int pink_count;
+// } BerryScore;
 
+typedef struct Berry {
+  int score;
+  berry_colors_t color;
+} Berry;
 
 /**
  * helper functions
@@ -364,19 +368,39 @@ void robot_control()
   
 /**
  * returns an array of booleans in the order [red,yellow,orange,pink]
- * for whether ex:[0,0,0,0]
+ * that indicates if the given berry color exists in the image
+ * ex:[0,0,0,0] means that there are no berries in the image
 */
-BerryScore getBerriesInImage(Colors color_map) {
-  BerryScore berries_in_image;
+int *getBerriesInImage(Colors color_map) {
+  int *berries_in_image;
 
-  berries_in_image.red_count = color_map.red > 10;
-  berries_in_image.orange_count = color_map.orange > 10;
-  berries_in_image.pink_count = color_map.pink > 10;
-  berries_in_image.yellow_count = color_map.yellow > 10; 
+  berries_in_image = malloc(sizeof(int) * 4);
+
+  berries_in_image[0] = color_map.red > 10;
+  berries_in_image[1] = color_map.orange > 10;
+  berries_in_image[2] = color_map.pink > 10;
+  berries_in_image[3] = color_map.yellow > 10; 
 
   return berries_in_image;
 }
 
+
+/**
+ * Returns 1 if the list has berries, 0 otherwise
+*/
+int hasAnyBerries(int *berryList) {
+  for (int i = 0; i < 4; i++) {
+    if (berryList[i] > 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+int hasBerryColor(int *berryList, Berry berry) {
+  berry_colors_t color = berry.color;
+  return berryList[color];
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -421,16 +445,17 @@ int main(int argc, char **argv)
   int i = 0;
 
 
-
   robot_states_t State = GET_BERRY;
 
   /* initialize the scores for berries priorities */
-  BerryScore berryScores = {
-      .red_count = 0,
-      .yellow_count = 0,
-      .orange_count = 0,
-      .pink_count = 0,
-  }; // order is [red,yellow,orange,pink]
+  Berry berryScores[4] = {
+    {.color = RED, .score = 0},
+    {.color = YELLOW, .score = 0},
+    {.color = ORANGE, .score = 0},
+    {.color = PINK, .score = 0}
+  }; 
+  // order is [red,yellow,orange,pink]
+
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CHANGE CODE ABOVE HERE ONLY ////////////////////////////////////////////////////
@@ -554,10 +579,53 @@ int main(int argc, char **argv)
       Colors rightColors = color_seen(rightImage,9);
       Colors leftColors = color_seen(leftImage,10);
 
-      BerryScore berriesFront = getBerriesInImage(frontColors);
-      BerryScore berriesBack = getBerriesInImage(backColors);
-      BerryScore berriesRight = getBerriesInImage(rightColors);
-      BerryScore berriesLeft = getBerriesInImage(leftColors);
+      int *berriesFrontList = getBerriesInImage(frontColors);
+      int *berriesBackList = getBerriesInImage(backColors);
+      int *berriesRightList = getBerriesInImage(rightColors);
+      int *berriesLeftList = getBerriesInImage(leftColors);
+
+      for (int j = 0; j < 4; j++) {
+        // get this ranked berry
+        Berry berry = berryScores[j];
+
+        if (hasBerryColor(berriesFrontList, berry)) 
+        {
+          go_forward();
+          printf("berry in front, %d\n", i);
+          break;
+        }
+        else if (hasBerryColor(berriesBackList, berry))
+        {
+          go_backward();
+          printf("berry in back, %d\n", i);
+          break;
+        }
+        else {
+          // for these, check if they're in the middle of the frame
+          if (hasBerryColor(berriesRightList, berry)) 
+          {
+            turn_right();
+            printf("berry in right, %d\n", i);
+            break;
+          }
+          else if (hasBerryColor(berriesLeftList, berry)) 
+          {
+            turn_left();
+            printf("berry in left, %d\n", i);
+            break;
+          }
+        }
+
+      }
+      
+
+      // if we hit a berry, update our score table
+
+
+      free(berriesFrontList);
+      free(berriesBackList);
+      free(berriesRightList);
+      free(berriesLeftList);
 
       break;
     default:
