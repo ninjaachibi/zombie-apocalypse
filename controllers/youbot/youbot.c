@@ -254,8 +254,8 @@ struct Colors color_seen(const unsigned char *image)
     .total=total,
     .green=green,
     .blue=blue,
-    .aqua=aqua,
-    .purple=purple,
+    .aqua=aqua*0.7,
+    .purple=purple*1.6,
     
     .red=red,
     .yellow=yellow,
@@ -554,12 +554,12 @@ int main(int argc, char **argv)
       lateral_berryflag = 0;
     }
 
-    if (wasBerryInView == 1 && i - berryInViewTimer > 300)
+    if (wasBerryInView == 1 && i - berryInViewTimer > 100)
     {
         wasBerryInView = 0;
     }
 
-    if (wasBerryInBackView == 1 && i - berryInViewBackTimer > 300)
+    if (wasBerryInBackView == 1 && i - berryInViewBackTimer > 100)
     {
       wasBerryInBackView = 0;
     }
