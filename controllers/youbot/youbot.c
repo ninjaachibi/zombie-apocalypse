@@ -388,9 +388,21 @@ int *getBerriesInImage(Colors color_map) {
   berries_in_image = malloc(sizeof(int) * 4);
 
   berries_in_image[0] = color_map.red > 10;
-  berries_in_image[1] = color_map.orange > 10;
-  berries_in_image[2] = color_map.pink > 10;
-  berries_in_image[3] = color_map.yellow > 10; 
+  berries_in_image[1] = color_map.yellow > 10;
+  berries_in_image[2] = color_map.orange > 10;
+  berries_in_image[3] = color_map.pink > 10; 
+
+  return berries_in_image;
+}
+
+int *getBerriesInMidImage(Colors color_map) {
+  int *berries_in_image;
+  berries_in_image = malloc(sizeof(int) * 4);
+
+  berries_in_image[0] = color_map.mid_red > 10;
+  berries_in_image[1] = color_map.mid_yellow > 10;
+  berries_in_image[2] = color_map.mid_orange > 10;
+  berries_in_image[3] = color_map.mid_pink > 10;
 
   return berries_in_image;
 }
@@ -456,7 +468,7 @@ int main(int argc, char **argv)
   // int i = 0;
 
 
-  robot_states_t State = AVOID_ZOMBIE;
+  robot_states_t State = GET_BERRY;
 
   /* initialize the scores for berries priorities */
   Berry berryScores[4] = {
@@ -473,6 +485,12 @@ int main(int argc, char **argv)
   int i = 0;
   int turning = 0;
   int start_turning_i = 0;
+  int lateral_berryflag = 0;
+  int starting_i = 0; // for going forward after we see a berry on lateral sides
+  int wasBerryInView = 0;
+  int berryInViewTimer = 0;
+  int wasBerryInBackView = 0;
+  int berryInViewBackTimer = 0;
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CHANGE CODE ABOVE HERE ONLY ////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -523,11 +541,27 @@ int main(int argc, char **argv)
     i++;
     if (turning == 1)
     {
-      if (i - start_turning_i < 173)
+      if (i - start_turning_i < 180)
          {continue;}
       else
         {turning = 0;
          continue;}
+    }
+
+    if (lateral_berryflag == 1 && i - starting_i > 400)
+    {
+      go_forward();
+      lateral_berryflag = 0;
+    }
+
+    if (wasBerryInView == 1 && i - berryInViewTimer > 300)
+    {
+        wasBerryInView = 0;
+    }
+
+    if (wasBerryInBackView == 1 && i - berryInViewBackTimer > 300)
+    {
+      wasBerryInBackView = 0;
     }
 
     /* Finite State Machine */
@@ -549,7 +583,7 @@ int main(int argc, char **argv)
       Colors right_cols = color_seen(right);
       Colors left_cols = color_seen(left);
 
-      print_Colors(back_cols);
+      // print_Colors(back_cols);
 
       
       // If losing health, drop everything and move forward or backward
@@ -584,6 +618,9 @@ int main(int argc, char **argv)
       else if (clear(front_cols, threshold) && clear(back_cols, threshold) && clear(right_cols, side_threshold) && clear(left_cols, side_threshold)) {
         // pass in robot energy and put threshold here?
         stop();
+        /**
+         * TODO: go to GET_BERRY state
+         * */
       }
       
       // Front is clear but another direction isn't
@@ -717,48 +754,90 @@ int main(int argc, char **argv)
       int *berriesRightList = getBerriesInImage(rightColors);
       int *berriesLeftList = getBerriesInImage(leftColors);
 
+      int *berriesRightMiddleList = getBerriesInMidImage(rightColors);
+      int *berriesLeftMiddleList = getBerriesInMidImage(leftColors);
+      int *berriesFrontMiddleList = getBerriesInMidImage(frontColors);
+      int *berriesBackMiddleList = getBerriesInMidImage(backColors);
+
+      int move_flag = 0;
       for (int j = 0; j < 4; j++) {
         // get this ranked berry
         Berry berry = berryScores[j];
 
-        if (hasBerryColor(berriesFrontList, berry)) 
+        if (hasBerryColor(berriesFrontMiddleList, berry) || wasBerryInView) 
         {
-          go_forward();
-          printf("berry in front, %d\n", i);
-          break;
-        }
-        else if (hasBerryColor(berriesBackList, berry))
-        {
-          go_backward();
-          printf("berry in back, %d\n", i);
-          break;
-        }
-        else {
-          // for these, check if they're in the middle of the frame
-          if (hasBerryColor(berriesRightList, berry)) 
+          if (wasBerryInView == 0)
           {
-            turn_right();
-            printf("berry in right, %d\n", i);
+            berryInViewTimer = i;
+          }
+          wasBerryInView = 1;
+          move_flag = 1;
+          go_forward();
+          printf("berry in front, %d, berry=%d\n", i, berry.color);
+          break;
+        }
+        else if (hasBerryColor(berriesBackMiddleList, berry) || wasBerryInBackView)
+        {
+          if (wasBerryInBackView == 0)
+          {
+            berryInViewBackTimer = i;
+          }
+          wasBerryInBackView = 1;
+          move_flag = 1;
+          go_backward();
+          printf("berry in back, %d, berry=%d\n", i, berry.color);
+          break;
+        }
+        else if (!lateral_berryflag) { 
+          // for these, check if they're in the middle of the frame
+          if (hasBerryColor(berriesRightMiddleList, berry)) 
+          {
+            move_flag = 1;
+            wrap_turn_right(&turning, &start_turning_i, i);
+            printf("berry in right, %d, berry=%d\n", i, berry.color);
+
+            // don't turn for the next 200 time steps
+            lateral_berryflag = 1;
+            starting_i = i;
+
             break;
           }
-          else if (hasBerryColor(berriesLeftList, berry)) 
+          else if (hasBerryColor(berriesLeftMiddleList, berry)) 
           {
-            turn_left();
-            printf("berry in left, %d\n", i);
+            move_flag = 1;
+            wrap_turn_right(&turning, &start_turning_i, i);
+            printf("berry in left, %d, berry=%d\n", i, berry.color);
+
+            // don't turn for the next 200 time steps
+            lateral_berryflag = 1;
+            starting_i = i;
+
             break;
           }
         }
 
       }
+
+      //default behavior - don't move
+      if (move_flag == 0) {
+        printf("berry default: go forward, i=%d\n", i);
+        go_forward();
+      }
+      
       
 
       // if we hit a berry, update our score table
 
+      /**
+       * TODO: if we see a zombie or lose health, go to avoid zombie state
+      */
 
       free(berriesFrontList);
       free(berriesBackList);
       free(berriesRightList);
       free(berriesLeftList);
+      free(berriesLeftMiddleList);
+      free(berriesRightMiddleList);
 
       break;
 
