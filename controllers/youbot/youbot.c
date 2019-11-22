@@ -523,8 +523,7 @@ int main(int argc, char **argv)
     if (turning == 1)
     {
       if (i - start_turning_i < 173)
-        {printf("%d\n", i);
-         continue;}
+         {continue;}
       else
         {turning = 0;
          continue;}
@@ -554,7 +553,6 @@ int main(int argc, char **argv)
       
       // If losing health, drop everything and move forward or backward
       if (losing_health && (robot_info.energy != 0)) {
-        printf("Losing health.\n");
         if (near_obstacle(front_cols, front) || (!clear(front_cols, threshold))) {
           go_backward();
         }
@@ -584,7 +582,6 @@ int main(int argc, char **argv)
       // Everything clear so stop
       else if (clear(front_cols, threshold) && clear(back_cols, threshold) && clear(right_cols, side_threshold) && clear(left_cols, side_threshold)) {
         // pass in robot energy and put threshold here?
-        printf("All clear.\n");
         stop();
       }
       
@@ -592,7 +589,6 @@ int main(int argc, char **argv)
       else if (clear(front_cols, threshold)) {
         if (!near_obstacle(front_cols, front)) {
           go_forward();
-          printf("Front clear.\n");
         }
         else {
           if (clear(back_cols, threshold)) {
@@ -635,7 +631,6 @@ int main(int argc, char **argv)
         // nothing clear, find least bad path
         // is it ever worth to turn left or right instead of going forward/backward? 
         else {
-          printf("Fucked. Absolutely fucked.\n");
           if (near_obstacle(front_cols, front)) {
             go_backward();
           }
