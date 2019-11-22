@@ -280,13 +280,13 @@ int main(int argc, char **argv)
   // wb_accelerometer_enable(1,1);
   // wb_gps_enable(2,TIME_STEP);
   // wb_compass_enable(3,TIME_STEP);
-  wb_camera_enable(4,TIME_STEP);
+  wb_camera_enable(4,TIME_STEP); // front of robot
   // wb_camera_enable(5,TIME_STEP);
   // wb_camera_enable(6,TIME_STEP);
   // wb_camera_enable(7,TIME_STEP);
-  wb_camera_enable(8,TIME_STEP);
-  wb_camera_enable(9,TIME_STEP);
-  wb_camera_enable(10,TIME_STEP);
+  wb_camera_enable(8,TIME_STEP); // back of robot
+  wb_camera_enable(9,TIME_STEP); // right of robot
+  wb_camera_enable(10,TIME_STEP); // left of robot
   // wb_camera_enable(11,TIME_STEP);
   // wb_gyro_enable(12,TIME_STEP);
   // wb_light_sensor_enable(13,TIME_STEP);
