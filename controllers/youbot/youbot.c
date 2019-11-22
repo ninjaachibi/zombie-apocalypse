@@ -210,6 +210,7 @@ Colors color_seen(const unsigned char *image)
 
   ret.total = total;
   ret.green = green;
+  ret.blue = blue;
   ret.aqua = aqua;
   ret.purple = purple;
   ret.red = red;
