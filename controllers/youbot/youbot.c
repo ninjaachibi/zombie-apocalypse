@@ -375,6 +375,7 @@ void wrap_turn_right (int *turning, int *start_turning_i, int i) {
   *start_turning_i = i;
   stop();
   turn_right();
+}
 
   
 /**
@@ -706,10 +707,10 @@ int main(int argc, char **argv)
       const unsigned char *rightImage = wb_camera_get_image(9);
       const unsigned char *leftImage = wb_camera_get_image(10);
 
-      Colors frontColors = color_seen(frontImage, 4);
-      Colors backColors = color_seen(backImage,8);
-      Colors rightColors = color_seen(rightImage,9);
-      Colors leftColors = color_seen(leftImage,10);
+      Colors frontColors = color_seen(frontImage);
+      Colors backColors = color_seen(backImage);
+      Colors rightColors = color_seen(rightImage);
+      Colors leftColors = color_seen(leftImage);
 
       int *berriesFrontList = getBerriesInImage(frontColors);
       int *berriesBackList = getBerriesInImage(backColors);
