@@ -361,7 +361,7 @@ void robot_control()
   //    {printf("OBSTACLE\nwall=%d, black=%d\n", front_colors.wall, front_colors.black);}
 }
 
-
+  
 /**
  * returns an array of booleans in the order [red,yellow,orange,pink]
  * for whether ex:[0,0,0,0]
@@ -369,6 +369,13 @@ void robot_control()
 BerryScore getBerriesInImage(Colors color_map) {
   BerryScore berries_in_image;
   
+}
+
+// used for debugging color_seen function
+void print_Colors(struct Colors c)
+{
+    printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", 
+          c.total, c.green, c.blue, c.aqua, c.purple, c.red, c.yellow, c.orange, c.pink, c.mid_red, c.mid_yellow, c.mid_orange, c.mid_pink, c.wall, c.black);
 }
 
 
@@ -546,7 +553,6 @@ int main(int argc, char **argv)
       Colors backColors = color_seen(backImage,8);
       Colors rightColors = color_seen(rightImage,9);
       Colors leftColors = color_seen(leftImage,10);
-
 
       
       break;
