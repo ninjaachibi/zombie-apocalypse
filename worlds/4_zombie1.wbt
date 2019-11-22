@@ -25,7 +25,7 @@ RectangleArena {
   floorTileSize 50 50
 }
 DEF Youbot Youbot {
-  translation 0 0.085297 0
+  translation 4.95091 0.0558616 5.47726
   rotation 0.999987208574567 -0.0013813423517076782 0.004865653147609176 -1.5710938681740114
   supervisor TRUE
   bodySlot [
