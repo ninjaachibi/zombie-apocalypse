@@ -128,6 +128,12 @@ typedef enum {
   PINK
 } berry_colors_t;
 
+typedef struct BerryScore {
+  int red_count;
+  int yellow_count;
+  int orange_count;
+  int pink_count;
+} BerryScore;
 
 
 /**
@@ -149,7 +155,7 @@ int above_stump(int b_x, int b_y, const unsigned char *image)
 }
 
 // function that counts colored pixels
-struct Colors color_seen(const unsigned char *image)
+struct Colors color_seen(const unsigned char *image, unsigned short cameranumber)
 {
   int total = 0;
   int green = 0;
@@ -238,8 +244,8 @@ struct Colors color_seen(const unsigned char *image)
                { black++; }
     }
   }
-  // printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", 
-          // total, green, blue, aqua, purple, red, yellow, orange, pink, mid_red, mid_yellow, mid_orange, mid_pink, wall, black);
+  printf("camera=%d total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", 
+          cameranumber, total, green, blue, aqua, purple, red, yellow, orange, pink, mid_red, mid_yellow, mid_orange, mid_pink, wall, black);
   
   struct Colors res = {
     .total=total,
@@ -347,8 +353,8 @@ void robot_control()
   const unsigned char *right_image = wb_camera_get_image(9);
   const unsigned char *left_image = wb_camera_get_image(10);
   
-  struct Colors front_colors = color_seen(front_image);
-  struct Colors right_colors = color_seen(right_image);
+  struct Colors front_colors = color_seen(front_image,4);
+  struct Colors right_colors = color_seen(right_image,8);
 
   // print_Colors(right_colors);
   // if (near_obstacle(front_colors, front_image))
@@ -356,6 +362,14 @@ void robot_control()
 }
 
 
+/**
+ * returns an array of booleans in the order [red,yellow,orange,pink]
+ * for whether ex:[0,0,0,0]
+*/
+BerryScore getBerriesInImage(Colors color_map) {
+  BerryScore berries_in_image;
+  
+}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -404,7 +418,12 @@ int main(int argc, char **argv)
   robot_states_t State = GET_BERRY;
 
   /* initialize the scores for berries priorities */
-  int berryScores[4] = {0,0,0,0}; // order is [red,yellow,orange,pink]
+  BerryScore berryScores = {
+      .red_count = 0,
+      .yellow_count = 0,
+      .orange_count = 0,
+      .pink_count = 0,
+  }; // order is [red,yellow,orange,pink]
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CHANGE CODE ABOVE HERE ONLY ////////////////////////////////////////////////////
@@ -489,8 +508,8 @@ int main(int argc, char **argv)
       /* code */
       break;
 
-    case GET_BERRY:
-      /*
+    case GET_BERRY: ;
+      /**
        * if state is get berry, do berry-getting behavior
        * 
        * global berryPriorityList = []
@@ -517,6 +536,17 @@ int main(int argc, char **argv)
        * check surroundings
        * update global state
        */
+
+      const unsigned char *frontImage = wb_camera_get_image(4);
+      const unsigned char *backImage = wb_camera_get_image(8);
+      const unsigned char *rightImage = wb_camera_get_image(9);
+      const unsigned char *leftImage = wb_camera_get_image(10);
+
+      Colors frontColors = color_seen(frontImage, 4);
+      Colors backColors = color_seen(backImage,8);
+      Colors rightColors = color_seen(rightImage,9);
+      Colors leftColors = color_seen(leftImage,10);
+
 
       
       break;
