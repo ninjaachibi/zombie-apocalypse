@@ -228,11 +228,10 @@ struct Colors color_seen(const unsigned char *image)
           }
               
           // obstacles  
-          if ( 
-          // ((r > 50 && g-5 < r && r < g+5) && (g > b-15)) ||
-               // ((60 < r && r < 70) && (60 < g && g < 70) && (60 < b && b < 70)) ||
-               ((65 < r && r < 75) && (70 < g && g < 80) && (90 < b && b < 100)))
-               // ((203 < r && r < 220) && (203 < g && g < 220) && (203 < b && b < 220)) )
+          if ( ((r > 50 && g-5 < r && r < g+5) && (g > b-15)) ||
+               ((60 < r && r < 70) && (60 < g && g < 70) && (60 < b && b < 70)) ||
+               ((65 < r && r < 75) && (70 < g && g < 80) && (90 < b && b < 100)) ||
+               ((203 < r && r < 220) && (203 < g && g < 220) && (203 < b && b < 220)) )
                { wall++; }
           if ( ((5 < r && r < 15) && (5 < g && g < 15) && (8 < b && b < 19)) ||
                ((20 < r && r < 35) && (20 < g && g < 35) && (20 < b && b < 35)) )
@@ -271,7 +270,7 @@ int near_obstacle(struct Colors c, const unsigned char *image)
     return 1;
   }
   
-  int solid_strip = 0;
+  int vert_strip = 0;
   for (int x = 0; x < 128; x+=1)  // if a pixel is wall, check if whole vertical strip is wall
   {
     int r = wb_camera_image_get_red(image, 128, x, 3);
@@ -283,7 +282,7 @@ int near_obstacle(struct Colors c, const unsigned char *image)
         ((65 < r && r < 75) && (70 < g && g < 80) && (90 < b && b < 100)) ||
         ((203 < r && r < 220) && (203 < g && g < 220) && (203 < b && b < 220)) )
       {
-        solid_strip = 1;
+        vert_strip = 1;
         for (int y = 0; y < 50; y+=1) 
         {
           int r = wb_camera_image_get_red(image, 128, x, y);
@@ -295,16 +294,50 @@ int near_obstacle(struct Colors c, const unsigned char *image)
                 ((65 < r && r < 75) && (70 < g && g < 80) && (90 < b && b < 100)) ||
                 ((203 < r && r < 220) && (203 < g && g < 220) && (203 < b && b < 220))))
           {
-            solid_strip = 0;
+            vert_strip = 0;
             break;
           }
         }
-        if (solid_strip == 1)
+        if (vert_strip == 1)
+          { return 1; }
+      }
+  }
+  int horiz_strip = 0;
+  for (int y = 30; y < 64; y+=1)  // if a pixel is cliff wall, check if horizontal strip near bottom is cliff wall
+  {
+    int r = wb_camera_image_get_red(image, 128, 25, y);
+    int g = wb_camera_image_get_green(image, 128, 25, y);
+    int b = wb_camera_image_get_blue(image, 128, 25, y);
+    
+    if ((60 < r && r < 80) && (60 < g && g < 80) && (60 < b && b < 80))
+      {
+        horiz_strip = 1;
+        for (int x = 0; x < 120; x+=1) 
+        {
+          int r = wb_camera_image_get_red(image, 128, x, y);
+          int g = wb_camera_image_get_green(image, 128, x, y);
+          int b = wb_camera_image_get_blue(image, 128, x, y);
+          
+          if (!((60 < r && r < 80) && (60 < g && g < 80) && (60 < b && b < 75)))
+          {
+            horiz_strip = 0;
+            break;
+          }
+        }
+        if (horiz_strip == 1)
           { return 1; }
       }
   }
   return 0;
 }
+
+// used for debugging color_seen function
+void print_Colors(struct Colors c)
+{
+    printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", 
+          c.total, c.green, c.blue, c.aqua, c.purple, c.red, c.yellow, c.orange, c.pink, c.mid_red, c.mid_yellow, c.mid_orange, c.mid_pink, c.wall, c.black);
+}
+
 
 
 void robot_control()
@@ -318,18 +351,12 @@ void robot_control()
   struct Colors right_colors = color_seen(right_image);
 
   // print_Colors(right_colors);
-       if (near_obstacle(front_colors, front_image))
-         {printf("OBSTACLE\nwall=%d, black=%d\n", front_colors.wall, front_colors.black);}
+  if (near_obstacle(front_colors, front_image))
+     {printf("OBSTACLE\nwall=%d, black=%d\n", front_colors.wall, front_colors.black);}
 }
 
 
 
-// used for debugging color_seen function
-void print_Colors(struct Colors c)
-{
-    printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", 
-          c.total, c.green, c.blue, c.aqua, c.purple, c.red, c.yellow, c.orange, c.pink, c.mid_red, c.mid_yellow, c.mid_orange, c.mid_pink, c.wall, c.black);
-}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// CHANGE CODE ABOVE HERE ONLY ////////////////////////////////////////////////////
@@ -416,89 +443,87 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     // this is called everytime step.
+    go_forward();
+    robot_control();
 
-    if (i < 100)
-    {
-    	base_forwards();
-    }
-    if (i == 100)
-    {
-      base_reset();
-    	base_turn_left();
-    }
-    if (i == 300)
-    {
-    	i = 0;
-    }
-    i++;
 
-    // call robot control every 10 
 
-    char imageFileName[32];
 
-    if (i % 10 == 0) {
-      robot_control();
 
-      // DEBUG: dump image in file
-      // sprintf(imageFileName, "image%06d.png", i);
-      // wb_camera_save_image(4, imageFileName,100);
-    }
 
-    /* Finite State Machine */
-    switch (State)
-    {
-    case AVOID_OBSTACLE:
-      /* code */
-      break;
+    // if (i < 100)
+    // {
+    // 	base_forwards();
+    // }
+    // if (i == 100)
+    // {
+    //   base_reset();
+    // 	base_turn_left();
+    // }
+    // if (i == 300)
+    // {
+    // 	i = 0;
+    // }
+    // i++;
 
-    case AVOID_ZOMBIE:
-      /* code */
-      break;
+    // // call robot control every 10 
 
-    case GET_BERRY:
-      /**
-       * if state is get berry, do berry-getting behavior
-       * 
-       * global berryPriorityList = []
-       * 
-       * best_berry = RED;
-       * get camera image for front, left, right, back
-       * 
-       * berries1 = getBerriesinImage(image1) // process if berries present in each image
-       * ...
-       * berries4 = getBerriesinImage(image4) 
-       * 
-       * for next highest priority berry in berryPriorityList:
-       *  if berry in front or back:
-       *    move robot front or backwards:
-       *    break;
-       *  else if berry left or right:
-       *    move robot left or right
-       *    break;
-       *  
-       * 
-       * if armor, health, or energy change by enough
-       *  update berry priority list
-       * 
-       * check surroundings
-       * update global state
-       * */
+    // char imageFileName[32];
+
+    // if (i % 10 == 0) {
+    //   robot_control();
+
+    //   // DEBUG: dump image in file
+    //   // sprintf(imageFileName, "image%06d.png", i);
+    //   // wb_camera_save_image(4, imageFileName,100);
+    // }
+
+    // /* Finite State Machine */
+    // switch (State)
+    // {
+    // case AVOID_OBSTACLE:
+    //   /* code */
+    //   break;
+
+    // case AVOID_ZOMBIE:
+    //   /* code */
+    //   break;
+
+    // case GET_BERRY:
+    //   *
+    //    * if state is get berry, do berry-getting behavior
+    //    * 
+    //    * global berryPriorityList = []
+    //    * 
+    //    * best_berry = RED;
+    //    * get camera image for front, left, right, back
+    //    * 
+    //    * berries1 = getBerriesinImage(image1) // process if berries present in each image
+    //    * ...
+    //    * berries4 = getBerriesinImage(image4) 
+    //    * 
+    //    * for next highest priority berry in berryPriorityList:
+    //    *  if berry in front or back:
+    //    *    move robot front or backwards:
+    //    *    break;
+    //    *  else if berry left or right:
+    //    *    move robot left or right
+    //    *    break;
+    //    *  
+    //    * 
+    //    * if armor, health, or energy change by enough
+    //    *  update berry priority list
+    //    * 
+    //    * check surroundings
+    //    * update global state
+    //    * 
 
       
-      break;
-    default:
-      break;
-    }
+    //   break;
+    // default:
+    //   break;
+    // }
 
-
-    
-
-    //  if (wb_receiver_get_queue_length(rec) > 0)
-  	// {
-  	// 	const char *buffer = wb_receiver_get_data(rec);
-   //      printf("Communicating: received \"%s\"\n", buffer);
-   //  	wb_receiver_next_packet(rec);
-   //  }
 
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
