@@ -20,8 +20,6 @@
  *                robot
  */
  
-
-
 #include <webots/keyboard.h>            
 #include <webots/robot.h>
 #include <webots/supervisor.h>
@@ -52,7 +50,6 @@
 
 int robot_angle = 0;
 #define TIME_STEP 32
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// ONLY USE THE FOLLOWING FUNCTIONS TO MOVE THE ROBOT /////////////////////////////
@@ -98,152 +95,221 @@ void turn_right()
 /**
  * typedefs go here
 */
-typedef struct Colors
-{
+typedef struct Colors {
   unsigned int total;
   unsigned int green;
   unsigned int blue;
   unsigned int aqua;
   unsigned int purple;
-
+  
   unsigned int red;
   unsigned int yellow;
   unsigned int orange;
   unsigned int pink;
-
-  unsigned int white;
-  unsigned int gray;
+  unsigned int mid_red;
+  unsigned int mid_yellow;
+  unsigned int mid_orange;
+  unsigned int mid_pink;
+  
+  unsigned int wall;
   unsigned int black;
-
+  
 } Colors;
 
+int above_stump(int b_x, int b_y, const unsigned char *image)
+{
+  for (int temp_y = b_y; temp_y < 64; temp_y+=1)
+  {
+    int r = wb_camera_image_get_red(image, 128, b_x, temp_y);
+    int g = wb_camera_image_get_green(image, 128, b_x, temp_y);
+    int b = wb_camera_image_get_blue(image, 128, b_x, temp_y);
+    if ( ((5 < r && r < 15) && (5 < g && g < 15) && (8 < b && b < 19)) ||
+         ((20 < r && r < 35) && (20 < g && g < 35) && (20 < b && b < 35)) )
+         { return 1; }
+  }
+  return 0;
+}
+
 // function that counts colored pixels
-Colors color_seen(const unsigned char *image)
+struct Colors color_seen(const unsigned char *image)
 {
   int total = 0;
   int green = 0;
   int blue = 0;
   int aqua = 0;
   int purple = 0;
-
+  
   int red = 0;
   int yellow = 0;
   int orange = 0;
   int pink = 0;
-
-  int white = 0;
-  int gray = 0;
+  int mid_red = 0;
+  int mid_yellow = 0;
+  int mid_orange = 0;
+  int mid_pink = 0;
+  
+  int wall = 0;
   int black = 0;
-
-  for (int x = 0; x < 128; x += 1)
+  
+  for (int x = 0; x < 128; x+=1)
   {
-    for (int y = 0; y < 64; y += 1)
+    for (int y = 0; y < 64; y+=1) 
     {
-      total++;
-      int r = wb_camera_image_get_red(image, 64, x, y);
-      int g = wb_camera_image_get_green(image, 64, x, y);
-      int b = wb_camera_image_get_blue(image, 64, x, y);
-
-      if ((r > 208) && (g > 208) && (b > 208))
-      {
-        white++;
-      }
-      if (((r > 65) && (r < 75)) && ((g > 70) && (g < 80)) && ((g > 90) && (g < 100)))
-      {
-        gray++;
-      }
-      if ((r < 48) && (g < 48) && (b < 48))
-      {
-        black++;
-      }
-      if (((15 < r && r < 25) && (115 < g && g < 145) && (15 < b && b < 25)) ||
-          ((15 < r && r < 25) && (85 < g && g < 100) && (15 < b && b < 25)) ||
-          ((28 < r && r < 45) && (190 < g && g < 210) && (30 < b && b < 45)) ||
-          ((7 < r && r < 14) && (45 < g && g < 57) && (8 < b && b < 19)))
-      {
-        green++;
-      }
-      if (((5 < r && r < 15) && (30 < g && g < 50) && (85 < b && b < 108)) ||
-          ((18 < r && r < 40) && (114 < g && g < 150) && (205 < b && b < 244)))
-      {
-        blue++;
-      }
-      if (((7 < r && r < 16) && (59 < g && g < 74) && (59 < b && b < 74)) ||
-          ((30 < r && r < 49) && (170 < g && g < 180) && (140 < b && b < 155)) ||
-          ((30 < r && r < 49) && (180 < g && g < 195) && (157 < b && b < 173)) ||
-          ((30 < r && r < 49) && (200 < g && g < 240) && (190 < b && b < 220)))
-      {
-        aqua++;
-      }
-      if (((145 < r && r < 25) && (115 < g && g < 145) && (15 < b && b < 25)) ||
-          ((43 < r && r < 65) && (17 < g && g < 30) && (90 < b && b < 130)) ||
-          ((110 < r && r < 130) && (40 < g && g < 56) && (180 < b && b < 200)))
-      {
-        purple++;
-      }
-      if (((60 < r && r < 78) && (13 < g && g < 28) && (13 < b && b < 28)) ||
-          ((190 < r && r < 225) && (53 < g && g < 66) && (37 < b && b < 49)))
-      {
-        red++;
-      }
-      if (((205 < r && r < 220) && (195 < g && g < 205) && (25 < b && b < 36)) ||
-          ((65 < r && r < 75) && (63 < g && g < 74) && (8 < b && b < 18)))
-      {
-        yellow++;
-      }
-      if (((188 < r && r < 200) && (117 < g && g < 129) && (77 < b && b < 89)) ||
-          ((55 < r && r < 68) && (33 < g && g < 43) && (28 < b && b < 37)))
-      {
-        orange++;
-      }
-      if (((188 < r && r < 200) && (117 < g && g < 129) && (162 < b && b < 175)) ||
-          ((56 < r && r < 68) && (33 < g && g < 44) && (62 < b && b < 73)))
-      {
-        pink++;
-      }
+              total++;
+              int r = wb_camera_image_get_red(image, 128, x, y);
+            int g = wb_camera_image_get_green(image, 128, x, y);
+        int b = wb_camera_image_get_blue(image, 128, x, y);
+        
+          // zombies    
+          if ( ((15 < r && r < 25) && (115 < g && g < 145) && (15 < b && b < 25)) ||
+               ((15 < r && r < 25) && (85 < g && g < 100) && (15 < b && b < 25)) ||
+               ((28 < r && r < 45) && (190 < g && g < 210) && (30 < b && b < 45)) ||
+               ((7 < r && r < 14) && (45 < g && g < 57) && (8 < b && b < 19)) )
+               { green++; }
+          if ( ((5 < r && r < 15) && (30 < g && g < 50) && (85 < b && b < 108)) ||
+               ((18 < r && r < 40) && (114 < g && g < 150) && (205 < b && b < 244)) )
+               { blue++; }
+          if ( ((7 < r && r < 16) && (59 < g && g < 74) && (59 < b && b < 74)) ||
+               ((30 < r && r < 49) && (170 < g && g < 180) && (140 < b && b < 155)) ||
+               ((30 < r && r < 49) && (180 < g && g < 195) && (157 < b && b < 173)) ||
+               ((30 < r && r < 49) && (200 < g && g < 240) && (190 < b && b < 220)) )
+               { aqua++; }
+          if ( ((145 < r && r < 25) && (115 < g && g < 145) && (15 < b && b < 25)) ||
+               ((43 < r && r < 65) && (17 < g && g < 30) && (90 < b && b < 130)) ||
+               ((110 < r && r < 130) && (40 < g && g < 56) && (180 < b && b < 200)) )
+               { purple++; } 
+                
+          // berries      
+          if (!above_stump(x, y, image))
+          {
+            if ( ((60 < r && r < 78) && (13 < g && g < 28) && (13 < b && b < 28)) ||
+                 ((190 < r && r < 225) && (53 < g && g < 66) && (37 < b && b < 49)) )
+                  { red++; 
+                    if (54 < x && x < 74)
+                      {mid_red++;}
+                  }
+            if ( ((202 < r && r < 220) && (190 < g && g < 205) && (25 < b && b < 36)) ||
+                  ((65 < r && r < 75) && (63 < g && g < 74) && (8 < b && b < 18)) )
+                  { yellow++; 
+                    if (54 < x && x < 74)
+                      {mid_yellow++;}
+                  }
+            if ( ((188 < r && r < 200) && (117 < g && g < 129) && (77 < b && b < 89)) ||
+                  ((55 < r && r < 68) && (33 < g && g < 43) && (28 < b && b < 37)) )
+                  { orange++; 
+                    if (54 < x && x < 74)
+                      {mid_orange++;}
+                  }
+            if ( ((188 < r && r < 200) && (117 < g && g < 129) && (162 < b && b < 175)) ||
+                  ((56 < r && r < 68) && (33 < g && g < 44) && (62 < b && b < 73)) )
+                  { pink++; 
+                     if (54 < x && x < 74)
+                       {mid_pink++;}
+                  }
+          }
+              
+          // obstacles  
+          if ( 
+          // ((r > 50 && g-5 < r && r < g+5) && (g > b-15)) ||
+               // ((60 < r && r < 70) && (60 < g && g < 70) && (60 < b && b < 70)) ||
+               ((65 < r && r < 75) && (70 < g && g < 80) && (90 < b && b < 100)))
+               // ((203 < r && r < 220) && (203 < g && g < 220) && (203 < b && b < 220)) )
+               { wall++; }
+          if ( ((5 < r && r < 15) && (5 < g && g < 15) && (8 < b && b < 19)) ||
+               ((20 < r && r < 35) && (20 < g && g < 35) && (20 < b && b < 35)) )
+               { black++; }
     }
   }
-  printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nwalls: white=%d, gray=%d, \ntree/stump: black=%d\n",
-         total, green, blue, aqua, purple, red, yellow, orange, pink, white, gray, black);
+  // printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", 
+          // total, green, blue, aqua, purple, red, yellow, orange, pink, mid_red, mid_yellow, mid_orange, mid_pink, wall, black);
+  
+  struct Colors res = {
+    .total=total,
+    .green=green,
+    .blue=blue,
+    .aqua=aqua,
+    .purple=purple,
+    
+    .red=red,
+    .yellow=yellow,
+    .orange=orange,
+    .pink=pink,
+    .mid_red=mid_red,
+    .mid_yellow=mid_yellow,
+    .mid_orange=mid_orange,
+    .mid_pink=mid_pink,
+    
+    .wall=wall,
+    .black=black};
+  return res;
+}
 
-  Colors ret;
-
-  ret.total = total;
-  ret.green = green;
-  ret.blue = blue;
-  ret.aqua = aqua;
-  ret.purple = purple;
-  ret.red = red;
-  ret.yellow = yellow;
-  ret.orange = orange;
-  ret.pink = pink;
-  ret.white = white;
-  ret.gray = gray;
-  ret.black = black;
-
-  return ret;
+int near_obstacle(struct Colors c, const unsigned char *image)
+{
+  if (c.black > 1000 || c.wall > 5400)
+  {
+    return 1;
+  }
+  
+  int solid_strip = 0;
+  for (int x = 0; x < 128; x+=1)  // if a pixel is wall, check if whole vertical strip is wall
+  {
+    int r = wb_camera_image_get_red(image, 128, x, 3);
+    int g = wb_camera_image_get_green(image, 128, x, 3);
+    int b = wb_camera_image_get_blue(image, 128, x, 3);    
+    
+    if (((r > 50 && g-5 < r && r < g+5) && (g > b-15)) ||
+        ((60 < r && r < 70) && (60 < g && g < 70) && (60 < b && b < 70)) ||
+        ((65 < r && r < 75) && (70 < g && g < 80) && (90 < b && b < 100)) ||
+        ((203 < r && r < 220) && (203 < g && g < 220) && (203 < b && b < 220)) )
+      {
+        solid_strip = 1;
+        for (int y = 0; y < 50; y+=1) 
+        {
+          int r = wb_camera_image_get_red(image, 128, x, y);
+          int g = wb_camera_image_get_green(image, 128, x, y);
+          int b = wb_camera_image_get_blue(image, 128, x, y);
+          
+          if (!(((r > 50 && g-5 < r && r < g+5) && (g > b-15)) ||
+                ((60 < r && r < 70) && (60 < g && g < 70) && (60 < b && b < 70)) ||
+                ((65 < r && r < 75) && (70 < g && g < 80) && (90 < b && b < 100)) ||
+                ((203 < r && r < 220) && (203 < g && g < 220) && (203 < b && b < 220))))
+          {
+            solid_strip = 0;
+            break;
+          }
+        }
+        if (solid_strip == 1)
+          { return 1; }
+      }
+  }
+  return 0;
 }
 
 void robot_control()
 {
-	////////////// TO GET RGB FROM THE CAMERA ///////////////////////////////////////////////////
-	const unsigned char *image = wb_camera_get_image(4);
+  const unsigned char *front_image = wb_camera_get_image(4);
+  const unsigned char *back_image = wb_camera_get_image(8);
+  const unsigned char *right_image = wb_camera_get_image(9);
+  const unsigned char *left_image = wb_camera_get_image(10);
+  
+  struct Colors front_colors = color_seen(front_image);
+  struct Colors right_colors = color_seen(right_image);
 
-  color_seen(image);
-	// for (int x = 0; x < 20; x++)
-	// {
-	// 	for (int y = 0; y < 20; y++) 
-	// 	{
-	// 		int r = wb_camera_image_get_red(image, 64, x, y);
-	// 		int g = wb_camera_image_get_green(image, 64, x, y);
-	// 		int b = wb_camera_image_get_blue(image, 64, x, y);
-	// 		printf("red=%d, green=%d, blue=%d \n", r, g, b);
-	// 	}
-	// }
-	/////////////////////////////////////////////////////////////////////////////////////////////
-	
+  // print_Colors(right_colors);
+       if (near_obstacle(front_colors, front_image))
+         {printf("OBSTACLE\nwall=%d, black=%d\n", front_colors.wall, front_colors.black);}
 }
 
+
+
+
+void print_Colors(struct Colors c)
+{
+    printf("total=%d, \nzombies: green=%d, blue=%d, aqua=%d, purple=%d, \nberries: red=%d, yellow=%d, orange=%d, pink=%d, \nmid_berries: red=%d, yellow=%d, orange=%d, pink=%d, \nobstacles: wall=%d, black=%d\n", 
+          c.total, c.green, c.blue, c.aqua, c.purple, c.red, c.yellow, c.orange, c.pink, c.mid_red, c.mid_yellow, c.mid_orange, c.mid_pink, c.wall, c.black);
+  
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// CHANGE CODE ABOVE HERE ONLY ////////////////////////////////////////////////////
@@ -277,28 +343,11 @@ int main(int argc, char **argv)
   ///////////////////////// CHANGE CODE BELOW HERE ONLY ////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-  // wb_accelerometer_enable(1,1);
-  // wb_gps_enable(2,TIME_STEP);
-  // wb_compass_enable(3,TIME_STEP);
   wb_camera_enable(4,TIME_STEP);
-  // wb_camera_enable(5,TIME_STEP);
-  // wb_camera_enable(6,TIME_STEP);
-  // wb_camera_enable(7,TIME_STEP);
   wb_camera_enable(8,TIME_STEP);
   wb_camera_enable(9,TIME_STEP);
   wb_camera_enable(10,TIME_STEP);
-  // wb_camera_enable(11,TIME_STEP);
-  // wb_gyro_enable(12,TIME_STEP);
-  // wb_light_sensor_enable(13,TIME_STEP);
-  // wb_receiver_enable(14,TIME_STEP);
-  // wb_range_finder_enable(15,TIME_STEP);
-  // wb_lidar_enable(16,1); 
-  
-  //WbDeviceTag lidar = wb_robot_get_device("lidar");
-  //wb_lidar_enable_point_cloud(lidar);
 
-  //WbDeviceTag rec = wb_robot_get_device("receiver");
- 
   int i = 0;
 
   typedef enum
