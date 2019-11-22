@@ -117,6 +117,20 @@ typedef struct Colors
 
 } Colors;
 
+typedef enum
+{
+  AVOID_ZOMBIE,
+  AVOID_OBSTACLE,
+  GET_BERRY,
+} robot_states_t;
+
+typedef enum {
+  RED,
+  YELLOW, 
+  ORANGE,
+  PINK
+} berry_colors_t;
+
 // function that counts colored pixels
 Colors color_seen(const unsigned char *image)
 {
