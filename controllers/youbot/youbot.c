@@ -494,40 +494,9 @@ int main(int argc, char **argv)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     // this is called everytime step.
-    go_forward();
-    robot_control();
 
 
-
-
-
-
-    if (i < 100)
-    {
-    	base_forwards();
-    }
-    if (i == 100)
-    {
-      base_reset();
-    	base_turn_left();
-    }
-    if (i == 300)
-    {
-    	i = 0;
-    }
     i++;
-
-    // call robot control every 10 
-
-    char imageFileName[32];
-
-    if (i % 10 == 0) {
-      robot_control();
-
-      // DEBUG: dump image in file
-      // sprintf(imageFileName, "image%06d.png", i);
-      // wb_camera_save_image(4, imageFileName,100);
-    }
 
     /* Finite State Machine */
     switch (State)
