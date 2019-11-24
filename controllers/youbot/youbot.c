@@ -554,12 +554,12 @@ int main(int argc, char **argv)
       lateral_berryflag = 0;
     }
 
-    if (wasBerryInView == 1 && i - berryInViewTimer > 100)
+    if (wasBerryInView == 1 && i - berryInViewTimer > 300)
     {
         wasBerryInView = 0;
     }
 
-    if (wasBerryInBackView == 1 && i - berryInViewBackTimer > 100)
+    if (wasBerryInBackView == 1 && i - berryInViewBackTimer > 300)
     {
       wasBerryInBackView = 0;
     }
@@ -571,13 +571,13 @@ int main(int argc, char **argv)
       /* code */
       break;
 
-    case AVOID_ZOMBIE: ;
+    case AVOID_ZOMBIE:;
       /* code */
       const unsigned char *front = wb_camera_get_image(4);
       const unsigned char *back = wb_camera_get_image(8);
       const unsigned char *right = wb_camera_get_image(9);
       const unsigned char *left = wb_camera_get_image(10);
-      
+
       Colors front_cols = color_seen(front);
       Colors back_cols = color_seen(back);
       Colors right_cols = color_seen(right);
@@ -585,159 +585,230 @@ int main(int argc, char **argv)
 
       // print_Colors(back_cols);
 
-      
       // If losing health, drop everything and move forward or backward
-      if (losing_health && (robot_info.energy != 0)) {
-        if (near_obstacle(front_cols, front) || (!clear(front_cols, threshold))) {
+      if (losing_health && (robot_info.energy != 0))
+      {
+        if (near_obstacle(front_cols, front) || (!clear(front_cols, threshold)))
+        {
           go_backward();
         }
-        else {
+        else
+        {
           go_forward();
         }
       }
 
-      else if ((near_obstacle(front_cols, front) && near_obstacle(right_cols, right)) || 
-               (near_obstacle(front_cols, front) && near_obstacle(left_cols, left))  ||
-               (near_obstacle(back_cols, back) && near_obstacle(left_cols, left)) ||
-               (near_obstacle(back_cols, back) && near_obstacle(right_cols, right))) {
-        if (near_obstacle(front_cols, front) && near_obstacle(right_cols, right)) {
+      // corners
+      else if ((near_obstacle(front_cols, front) && near_obstacle(right_cols, right)) ||
+                (near_obstacle(front_cols, front) && near_obstacle(left_cols, left)) ||
+                (near_obstacle(back_cols, back) && near_obstacle(left_cols, left)) ||
+                (near_obstacle(back_cols, back) && near_obstacle(right_cols, right)))
+      {
+        if (near_obstacle(front_cols, front) && near_obstacle(right_cols, right))
+        {
           wrap_turn_right(&turning, &start_turning_i, i);
         }
-        else if (near_obstacle(front_cols, front) && near_obstacle(left_cols, left)) {
+        else if (near_obstacle(front_cols, front) && near_obstacle(left_cols, left))
+        {
           wrap_turn_left(&turning, &start_turning_i, i);
         }
-        else if (near_obstacle(back_cols, back) && near_obstacle(left_cols, left)) {
+        else if (near_obstacle(back_cols, back) && near_obstacle(left_cols, left))
+        {
           wrap_turn_right(&turning, &start_turning_i, i);
         }
-        else {
+        else
+        {
           wrap_turn_left(&turning, &start_turning_i, i);
         }
       }
-      
-      // Everything clear so stop
-      else if (clear(front_cols, threshold) && clear(back_cols, threshold) && clear(right_cols, side_threshold) && clear(left_cols, side_threshold)) {
+
+      // Both no zombies and not obstacles so stop
+      else if ((clear(front_cols, threshold) && clear(back_cols, threshold) && clear(right_cols, side_threshold) && clear(left_cols, side_threshold)) &&
+                (!near_obstacle(front_cols, front) && !near_obstacle(back_cols, back) && !near_obstacle(right_cols, right) && !near_obstacle(left_cols, left)))
+      {
         // pass in robot energy and put threshold here?
         stop();
+
         /**
-         * TODO: go to GET_BERRY state
-         * */
+       *  go to GET_BERRY state is below threshold
+       * */
+        if (robot_info.energy < 30)
+        {
+          State = GET_BERRY;
+          printf("Changing State to: GET_BERRY\n");
+        }
       }
-      
+
+      // clear of all zombies but there's there an obstacle on one side.
+      else if ((clear(front_cols, threshold) && clear(back_cols, threshold) && clear(right_cols, side_threshold) && clear(left_cols, side_threshold)))
+      {
+        if (near_obstacle(front_cols, front) && near_obstacle(back_cols,back)) 
+        {
+          wrap_turn_right(&turning, &start_turning_i, i);
+          printf("avoiding front and back obstacles\n");
+        }
+        else if (near_obstacle(front_cols, front))
+        {
+          go_backward();
+          printf("avoiding front obstacle\n");
+        }
+        else if (near_obstacle(back_cols, back) || near_obstacle(left_cols, left) || near_obstacle(right_cols, right))
+        {
+          go_forward();
+          printf("avoiding back,left,right obstacle\n");
+        }
+      }
+
       // Front is clear but another direction isn't
-      else if (clear(front_cols, threshold)) {
-        if (!near_obstacle(front_cols, front)) {
+      else if (clear(front_cols, threshold))
+      {
+        if (!near_obstacle(front_cols, front))
+        {
           go_forward();
         }
-        else {
-          if (clear(back_cols, threshold)) {
+        else
+        {
+          if (clear(back_cols, threshold))
+          {
             go_backward();
           }
-          else if (clear(right_cols, side_threshold) && clear(left_cols, side_threshold)) {
+          else if (clear(right_cols, side_threshold) && clear(left_cols, side_threshold))
+          {
             // choose direction for now to see if it works
             // berry_finder() to determine turn direction
             wrap_turn_right(&turning, &start_turning_i, i);
           }
-          else if (clear(right_cols, side_threshold)) {
+          else if (clear(right_cols, side_threshold))
+          {
             wrap_turn_right(&turning, &start_turning_i, i);
           }
           // left clear
-          else {
+          else
+          {
             wrap_turn_left(&turning, &start_turning_i, i);
-
           }
         }
       }
-      
+
       // Front is not clear
-      else {
-        if (clear(back_cols, threshold) && (!near_obstacle(back_cols, back))) {
+      else
+      {
+        if (clear(back_cols, threshold) && (!near_obstacle(back_cols, back)))
+        {
           // no need to see if we should turn instead of going back?
           go_backward();
         }
-        else if (clear(right_cols, side_threshold) && clear(left_cols, side_threshold)) {
+        else if (clear(right_cols, side_threshold) && clear(left_cols, side_threshold))
+        {
           // choose direction for now to see if it works
           // berry_finder() to determine turn direction
-          wrap_turn_right(&turning, &start_turning_i, i);
-        }
-        else if (clear(right_cols, side_threshold)) {
-          wrap_turn_right(&turning, &start_turning_i, i);
-        }
-        else if (clear(left_cols, side_threshold)){
-          wrap_turn_left(&turning, &start_turning_i, i);
 
+          int *berriesRightMiddleList = getBerriesInMidImage(right_cols);
+          if (hasAnyBerries(berriesRightMiddleList))
+          {
+            wrap_turn_right(&turning, &start_turning_i, i);
+          }
+          else
+          {
+            wrap_turn_left(&turning, &start_turning_i, i);
+          }
+
+          free(berriesRightMiddleList);
+        }
+        else if (clear(right_cols, side_threshold))
+        {
+          wrap_turn_right(&turning, &start_turning_i, i);
+        }
+        else if (clear(left_cols, side_threshold))
+        {
+          wrap_turn_left(&turning, &start_turning_i, i);
         }
         // nothing clear, find least bad path
-        // is it ever worth to turn left or right instead of going forward/backward? 
-        else {
-          if (near_obstacle(front_cols, front)) {
+        // is it ever worth to turn left or right instead of going forward/backward?
+        else
+        {
+          if (near_obstacle(front_cols, front))
+          {
             go_backward();
           }
-          else if (near_obstacle(back_cols, back)) {
+          else if (near_obstacle(back_cols, back))
+          {
             go_forward();
           }
-          else if ((back_cols.aqua < threshold) && (front_cols.aqua < threshold)) {
-            if ((back_cols.purple < threshold) && (front_cols.purple < threshold)) {
-              if ((back_cols.green < threshold) && (front_cols.green < threshold)) {
+          else if ((back_cols.aqua < threshold) && (front_cols.aqua < threshold))
+          {
+            if ((back_cols.purple < threshold) && (front_cols.purple < threshold))
+            {
+              if ((back_cols.green < threshold) && (front_cols.green < threshold))
+              {
                 // can't both be clear because surrounded on all sides
-                if (back_cols.blue < threshold) {
+                if (back_cols.blue < threshold)
+                {
                   go_backward();
                 }
-                else {
+                else
+                {
                   go_forward();
                 }
               }
-              else if (back_cols.green < threshold) {
+              else if (back_cols.green < threshold)
+              {
                 go_backward();
               }
-              else {
+              else
+              {
                 go_forward();
               }
             }
-            else if (back_cols.purple < threshold) {
+            else if (back_cols.purple < threshold)
+            {
               go_backward();
             }
-            else {
+            else
+            {
               go_forward();
             }
           }
-          else if (back_cols.aqua < threshold) {
+          else if (back_cols.aqua < threshold)
+          {
             go_backward();
           }
-          else {
+          else
+          {
             go_forward();
           }
         }
       }
       break;
 
-    case GET_BERRY: ;
+    case GET_BERRY:;
       /**
-       * if state is get berry, do berry-getting behavior
-       * 
-       * global berryPriorityList = []
-       * 
-       * best_berry = RED;
-       * get camera image for front, left, right, back
-       * 
-       * berries1 = getBerriesinImage(image1) // process if berries present in each image
-       * ...
-       * berries4 = getBerriesinImage(image4) 
-       * 
-       * for next highest priority berry in berryPriorityList:
-       *  if berry in front or back:
-       *    move robot front or backwards:
-       *    break;
-       *  else if berry left or right:
-       *    move robot left or right
-       *    break;
-       *  
-       * 
-       * if armor, health, or energy change by enough
-       *  update berry priority list
-       * 
-       * check surroundings
-       * update global state
-       */
+     * if state is get berry, do berry-getting behavior
+     * 
+     * global berryPriorityList = []
+     * 
+     * best_berry = RED;
+     * get camera image for front, left, right, back
+     * 
+     * berries1 = getBerriesinImage(image1) // process if berries present in each image
+     * ...
+     * berries4 = getBerriesinImage(image4) 
+     * 
+     * for next highest priority berry in berryPriorityList:
+     *  if berry in front or back:
+     *    move robot front or backwards:
+     *    break;
+     *  else if berry left or right:
+     *    move robot left or right
+     *    break;
+     *  
+     * 
+     * if armor, health, or energy change by enough
+     *  update berry priority list
+     * 
+     * check surroundings
+     * update global state
+     */
 
       const unsigned char *frontImage = wb_camera_get_image(4);
       const unsigned char *backImage = wb_camera_get_image(8);
@@ -749,6 +820,18 @@ int main(int argc, char **argv)
       Colors rightColors = color_seen(rightImage);
       Colors leftColors = color_seen(leftImage);
 
+      /* check that no zombies */
+      /* checks that if we're near an obstacle on any side*/
+      if (!(clear(rightColors, side_threshold) && clear(leftColors, side_threshold) && clear(frontColors, threshold) && clear(backColors, threshold)) ||
+          (near_obstacle(frontColors, frontImage) || near_obstacle(backColors, backImage) || near_obstacle(rightColors, rightImage) || near_obstacle(leftColors, leftImage)) ||
+          (losing_health && robot_info.energy != 0))
+      {
+        // go to avoid
+        State = AVOID_ZOMBIE;
+        printf("CHANGING STATE TO: AVOID_ZOMBIE\n");
+      }
+
+      /* get berry */
       int *berriesFrontList = getBerriesInImage(frontColors);
       int *berriesBackList = getBerriesInImage(backColors);
       int *berriesRightList = getBerriesInImage(rightColors);
@@ -760,11 +843,12 @@ int main(int argc, char **argv)
       int *berriesBackMiddleList = getBerriesInMidImage(backColors);
 
       int move_flag = 0;
-      for (int j = 0; j < 4; j++) {
+      for (int j = 0; j < 4; j++)
+      {
         // get this ranked berry
         Berry berry = berryScores[j];
 
-        if (hasBerryColor(berriesFrontMiddleList, berry) || wasBerryInView) 
+        if (hasBerryColor(berriesFrontMiddleList, berry) || wasBerryInView)
         {
           if (wasBerryInView == 0)
           {
@@ -788,9 +872,10 @@ int main(int argc, char **argv)
           printf("berry in back, %d, berry=%d\n", i, berry.color);
           break;
         }
-        else if (!lateral_berryflag) { 
+        else if (!lateral_berryflag)
+        {
           // for these, check if they're in the middle of the frame
-          if (hasBerryColor(berriesRightMiddleList, berry)) 
+          if (hasBerryColor(berriesRightMiddleList, berry))
           {
             move_flag = 1;
             wrap_turn_right(&turning, &start_turning_i, i);
@@ -802,7 +887,7 @@ int main(int argc, char **argv)
 
             break;
           }
-          else if (hasBerryColor(berriesLeftMiddleList, berry)) 
+          else if (hasBerryColor(berriesLeftMiddleList, berry))
           {
             move_flag = 1;
             wrap_turn_right(&turning, &start_turning_i, i);
@@ -815,21 +900,19 @@ int main(int argc, char **argv)
             break;
           }
         }
-
       }
 
       //default behavior - don't move
-      if (move_flag == 0) {
-        printf("berry default: go forward, i=%d\n", i);
-        go_forward();
+      if (move_flag == 0)
+      {
+        printf("berry default: go backward, i=%d\n", i);
+        go_backward();
       }
-      
-      
 
       // if we hit a berry, update our score table
 
       /**
-       * TODO: if we see a zombie or lose health, go to avoid zombie state
+      * TODO: if we see a zombie or lose health, go to avoid zombie state
       */
 
       free(berriesFrontList);
@@ -844,6 +927,7 @@ int main(int argc, char **argv)
     default:
       break;
     }
+
 
 
     
