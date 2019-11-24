@@ -254,8 +254,8 @@ struct Colors color_seen(const unsigned char *image)
     .total=total,
     .green=green,
     .blue=blue,
-    .aqua=aqua * .6, // no so scared of aqua
-    .purple=purple * 1.8, // we are scared of purples
+    .aqua=aqua*0.7,
+    .purple=purple*1.6,
     
     .red=red,
     .yellow=yellow,
@@ -468,7 +468,7 @@ int main(int argc, char **argv)
   // int i = 0;
 
 
-  robot_states_t State = AVOID_ZOMBIE;
+  robot_states_t State = GET_BERRY;
 
   /* initialize the scores for berries priorities */
   Berry berryScores[4] = {
@@ -912,8 +912,8 @@ int main(int argc, char **argv)
       // if we hit a berry, update our score table
 
       /**
-     * TODO: if we see a zombie or lose health, go to avoid zombie state
-    */
+      * TODO: if we see a zombie or lose health, go to avoid zombie state
+      */
 
       free(berriesFrontList);
       free(berriesBackList);
